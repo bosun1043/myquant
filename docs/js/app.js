@@ -34,14 +34,21 @@ class StockAnalyzer {
     }
 
     async fetchStockData(symbol) {
-        const apiKey = 'RNZPXZ6Q9FEFMEHM';
+        const apiKey = 'demo'; // Using demo API key for testing
         
         try {
-            // Fetch daily time series data
+            // Fetch daily time series data with CORS headers
             const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
             console.log('Fetching data from:', url);
             
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
             console.log('Response status:', response.status);
             
             if (!response.ok) {
@@ -53,6 +60,10 @@ class StockAnalyzer {
             
             if (data['Error Message']) {
                 throw new Error(data['Error Message']);
+            }
+            
+            if (data['Note']) {
+                throw new Error('API rate limit exceeded. Please try again in a minute.');
             }
             
             if (!data['Time Series (Daily)']) {
