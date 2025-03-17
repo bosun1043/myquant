@@ -26,17 +26,16 @@ class StockAnalyzer {
     }
 
     async fetchStockData(symbol) {
-        const corsProxy = 'https://cors-anywhere.herokuapp.com/';
-        const baseUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/';
-        const params = '?interval=1d&range=1y';
-        
+        const options = {
+            method: 'GET',
+            headers: {
+                'X-RapidAPI-Key': '2b2466c9e1msh4e0d5008f161c3dp1a1f89jsn0a0d5c6c54f6',
+                'X-RapidAPI-Host': 'yh-finance.p.rapidapi.com'
+            }
+        };
+
         try {
-            const response = await fetch(`${corsProxy}${baseUrl}${symbol}${params}`, {
-                headers: {
-                    'Origin': window.location.origin,
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            });
+            const response = await fetch(`https://yh-finance.p.rapidapi.com/stock/v3/get-chart?interval=1d&symbol=${symbol}&range=1y&includePrePost=false`, options);
             
             if (!response.ok) {
                 throw new Error('Network response was not ok');
