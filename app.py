@@ -6,20 +6,24 @@ import plotly.graph_objs as go
 import json
 from datetime import datetime, timedelta
 import numpy as np
+from alpha_vantage.timeseries import TimeSeries
 
 app = Flask(__name__)
 
-def get_stock_data(symbol, period='1y'):
+
+def get_stock_data_alpha_vantage(symbol):
+    ts = TimeSeries(key='YOUR_API_KEY', output_format='pandas')
     try:
-        stock = yf.Ticker(symbol)
-        hist = stock.history(period=period)
-        if hist.empty:
-            print(f"Debug: Received empty dataset for {symbol}.")
+        data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
+        if data.empty:
             raise ValueError(f"No data found for symbol: {symbol}")
-        return hist
+        return data
     except Exception as e:
-        print(f"Debug: Exception occurred - {str(e)}")  # Capture and log the exact error message
         raise ValueError(f"Error fetching data for {symbol}: {str(e)}")
+
+# Example usage
+data = get_stock_data_alpha_vantage('MSFT')  # Replace 'MSFT' with your desired symbol
+print(data.head())
 
 
 
