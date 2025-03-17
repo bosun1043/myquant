@@ -29,12 +29,19 @@ class StockAnalyzer {
     }
 
     async fetchStockData(symbol) {
-        const apiKey = 'RNZPXZ6Q9FEFMEHM';
-        const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
+        const apiKey = 'cle8p89r01qjq9sl4q3gcle8p89r01qjq9sl4q40';
+        const today = Math.floor(Date.now() / 1000);
+        const oneYearAgo = today - 365 * 24 * 60 * 60;
+        const resolution = 'D'; // Daily candles
 
         try {
-            console.log('Fetching data from:', url);
-            const response = await fetch(url);
+            console.log('Fetching stock data...');
+            
+            // Fetch candle data
+            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${oneYearAgo}&to=${today}&token=${apiKey}`;
+            console.log('Fetching from:', candleUrl);
+            
+            const response = await fetch(candleUrl);
             console.log('Response status:', response.status);
             
             if (!response.ok) {
@@ -44,35 +51,22 @@ class StockAnalyzer {
             const data = await response.json();
             console.log('Received data:', data);
             
-            if (data['Error Message']) {
-                throw new Error(data['Error Message']);
+            if (data.s === 'no_data') {
+                throw new Error('No data available for this symbol');
             }
 
-            if (!data['Time Series (Daily)']) {
-                throw new Error('No time series data available for this symbol');
-            }
-            
-            // Transform Alpha Vantage data to match our expected format
-            const timeSeriesData = data['Time Series (Daily)'];
-            const timestamps = Object.keys(timeSeriesData).sort();
-            
-            if (timestamps.length === 0) {
-                throw new Error('No historical data available for this symbol');
-            }
-
-            const lastYear = timestamps.slice(-252); // Approximately 1 year of trading days
-
+            // Transform Finnhub data to match our expected format
             const transformedData = {
                 chart: {
                     result: [{
-                        timestamp: lastYear.map(date => new Date(date).getTime() / 1000),
+                        timestamp: data.t,
                         indicators: {
                             quote: [{
-                                open: lastYear.map(date => parseFloat(timeSeriesData[date]['1. open'])),
-                                high: lastYear.map(date => parseFloat(timeSeriesData[date]['2. high'])),
-                                low: lastYear.map(date => parseFloat(timeSeriesData[date]['3. low'])),
-                                close: lastYear.map(date => parseFloat(timeSeriesData[date]['4. close'])),
-                                volume: lastYear.map(date => parseFloat(timeSeriesData[date]['5. volume']))
+                                open: data.o,
+                                high: data.h,
+                                low: data.l,
+                                close: data.c,
+                                volume: data.v
                             }]
                         }
                     }]
@@ -82,9 +76,6 @@ class StockAnalyzer {
             return transformedData;
         } catch (error) {
             console.error('Detailed fetch error:', error);
-            if (error.message.includes('rate limit')) {
-                throw new Error('API rate limit exceeded. Please try again in a minute.');
-            }
             throw new Error(`Failed to fetch stock data: ${error.message}`);
         }
     }
