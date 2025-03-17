@@ -17,14 +17,19 @@ class StockAnalyzer {
         
         this.showLoading();
         try {
+            console.log(`Attempting to fetch data for symbol: ${symbol}`);
             const data = await this.fetchStockData(symbol);
-            if (!data) {
-                throw new Error('No data received from API');
+            if (!data || !data.chart || !data.chart.result || !data.chart.result[0]) {
+                throw new Error('Invalid or empty data received from API');
             }
             this.processAndDisplayData(data);
         } catch (error) {
+            console.error('Error details:', {
+                message: error.message,
+                stack: error.stack,
+                error: error
+            });
             this.showError(error.message);
-            console.error('Detailed error:', error);
         }
     }
 
@@ -35,27 +40,43 @@ class StockAnalyzer {
         const resolution = 'D'; // Daily candles
 
         try {
-            console.log('Fetching stock data...');
+            // First, verify the symbol exists
+            const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
+            console.log('Checking symbol validity:', quoteUrl);
             
-            // Fetch candle data
-            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${oneYearAgo}&to=${today}&token=${apiKey}`;
-            console.log('Fetching from:', candleUrl);
+            const quoteResponse = await fetch(quoteUrl);
+            console.log('Quote response status:', quoteResponse.status);
             
-            const response = await fetch(candleUrl);
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (!quoteResponse.ok) {
+                throw new Error(`Quote API error! Status: ${quoteResponse.status}`);
             }
             
-            const data = await response.json();
-            console.log('Received data:', data);
+            const quoteData = await quoteResponse.json();
+            console.log('Quote data:', quoteData);
             
-            if (data.s === 'no_data') {
-                throw new Error('No data available for this symbol');
+            if (!quoteData || quoteData.c === 0) {
+                throw new Error('Invalid symbol or no data available');
             }
 
-            // Transform Finnhub data to match our expected format
+            // Then fetch historical data
+            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${oneYearAgo}&to=${today}&token=${apiKey}`;
+            console.log('Fetching historical data:', candleUrl);
+            
+            const candleResponse = await fetch(candleUrl);
+            console.log('Candle response status:', candleResponse.status);
+            
+            if (!candleResponse.ok) {
+                throw new Error(`Historical data API error! Status: ${candleResponse.status}`);
+            }
+            
+            const data = await candleResponse.json();
+            console.log('Historical data:', data);
+            
+            if (data.s === 'no_data' || !data.t || data.t.length === 0) {
+                throw new Error('No historical data available for this symbol');
+            }
+
+            // Transform the data
             const transformedData = {
                 chart: {
                     result: [{
@@ -75,7 +96,11 @@ class StockAnalyzer {
             
             return transformedData;
         } catch (error) {
-            console.error('Detailed fetch error:', error);
+            console.error('API Error:', {
+                message: error.message,
+                stack: error.stack,
+                error: error
+            });
             throw new Error(`Failed to fetch stock data: ${error.message}`);
         }
     }
