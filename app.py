@@ -9,15 +9,24 @@ import numpy as np
 
 app = Flask(__name__)
 
-def get_stock_data(symbol, period='1y'):
-    try:
-        stock = yf.Ticker(symbol)
-        hist = stock.history(period=period)
-        if hist.empty:
-            raise ValueError(f"No data found for symbol: {symbol}")
-        return hist
-    except Exception as e:
-        raise ValueError(f"Error fetching data for {symbol}: {str(e)}")
+def test_yfinance(symbols):
+    for symbol in symbols:
+        try:
+            stock = yf.Ticker(symbol)
+            hist = stock.history(period='1y')
+            if hist.empty:
+                print(f"No data available for {symbol}")
+            else:
+                print(f"Data fetched successfully for {symbol}")
+                print(hist.head())
+        except Exception as e:
+            print(f"Failed to fetch data for {symbol}: {str(e)}")
+
+# List of stock symbols you want to test
+symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA']
+
+test_yfinance(symbols)
+
 
 def create_candlestick_chart(df):
     try:
