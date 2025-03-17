@@ -20,24 +20,39 @@ class StockAnalyzer {
             const data = await this.fetchStockData(symbol);
             this.processAndDisplayData(data);
         } catch (error) {
-            this.showError(error.message);
+            this.showError("Failed to fetch stock data. Please try again later.");
+            console.error(error);
         }
     }
 
     async fetchStockData(symbol) {
-        // Using Yahoo Finance API
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setFullYear(startDate.getFullYear() - 1);
-
-        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=1y`);
-        const data = await response.json();
-
-        if (data.chart.error) {
-            throw new Error(data.chart.error.description);
+        const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+        const baseUrl = 'https://query1.finance.yahoo.com/v8/finance/chart/';
+        const params = '?interval=1d&range=1y';
+        
+        try {
+            const response = await fetch(`${corsProxy}${baseUrl}${symbol}${params}`, {
+                headers: {
+                    'Origin': window.location.origin,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const data = await response.json();
+            
+            if (data.chart.error) {
+                throw new Error(data.chart.error.description);
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error fetching stock data:', error);
+            throw new Error('Failed to fetch stock data. Please try again later.');
         }
-
-        return data;
     }
 
     processAndDisplayData(data) {
