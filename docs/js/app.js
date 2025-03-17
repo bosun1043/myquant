@@ -34,68 +34,50 @@ class StockAnalyzer {
     }
 
     async fetchStockData(symbol) {
-        const apiKey = 'cle8p89r01qjq9sl4q3gcle8p89r01qjq9sl4q40';
-        const today = Math.floor(Date.now() / 1000);
-        const oneYearAgo = today - 365 * 24 * 60 * 60;
-        const resolution = 'D'; // Daily candles
-
+        const apiKey = 'RNZPXZ6Q9FEFMEHM';
+        
         try {
-            // Configure fetch options with proper headers
-            const fetchOptions = {
-                method: 'GET',
-                headers: {
-                    'X-Finnhub-Token': apiKey
-                }
-            };
-
-            // First, verify the symbol exists
-            const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}`;
-            console.log('Checking symbol validity:', quoteUrl);
+            // Fetch daily time series data
+            const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
+            console.log('Fetching data from:', url);
             
-            const quoteResponse = await fetch(quoteUrl, fetchOptions);
-            console.log('Quote response status:', quoteResponse.status);
+            const response = await fetch(url);
+            console.log('Response status:', response.status);
             
-            if (!quoteResponse.ok) {
-                throw new Error(`Quote API error! Status: ${quoteResponse.status}`);
+            if (!response.ok) {
+                throw new Error(`API error! Status: ${response.status}`);
             }
             
-            const quoteData = await quoteResponse.json();
-            console.log('Quote data:', quoteData);
+            const data = await response.json();
+            console.log('Received data:', data);
             
-            if (!quoteData || quoteData.c === 0) {
-                throw new Error('Invalid symbol or no data available');
+            if (data['Error Message']) {
+                throw new Error(data['Error Message']);
+            }
+            
+            if (!data['Time Series (Daily)']) {
+                throw new Error('No data available for this symbol');
             }
 
-            // Then fetch historical data
-            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${oneYearAgo}&to=${today}`;
-            console.log('Fetching historical data:', candleUrl);
-            
-            const candleResponse = await fetch(candleUrl, fetchOptions);
-            console.log('Candle response status:', candleResponse.status);
-            
-            if (!candleResponse.ok) {
-                throw new Error(`Historical data API error! Status: ${candleResponse.status}`);
-            }
-            
-            const data = await candleResponse.json();
-            console.log('Historical data:', data);
-            
-            if (data.s === 'no_data' || !data.t || data.t.length === 0) {
-                throw new Error('No historical data available for this symbol');
-            }
+            // Transform Alpha Vantage data to match our format
+            const timeSeriesData = data['Time Series (Daily)'];
+            const dates = Object.keys(timeSeriesData).sort();
+            const lastYear = dates.filter(date => {
+                const dateObj = new Date(date);
+                return dateObj >= new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+            });
 
-            // Transform the data
             const transformedData = {
                 chart: {
                     result: [{
-                        timestamp: data.t,
+                        timestamp: lastYear.map(date => Math.floor(new Date(date).getTime() / 1000)),
                         indicators: {
                             quote: [{
-                                open: data.o,
-                                high: data.h,
-                                low: data.l,
-                                close: data.c,
-                                volume: data.v
+                                open: lastYear.map(date => parseFloat(timeSeriesData[date]['1. open'])),
+                                high: lastYear.map(date => parseFloat(timeSeriesData[date]['2. high'])),
+                                low: lastYear.map(date => parseFloat(timeSeriesData[date]['3. low'])),
+                                close: lastYear.map(date => parseFloat(timeSeriesData[date]['4. close'])),
+                                volume: lastYear.map(date => parseFloat(timeSeriesData[date]['5. volume']))
                             }]
                         }
                     }]
