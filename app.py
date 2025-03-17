@@ -9,27 +9,15 @@ import numpy as np
 
 app = Flask(__name__)
 
-
-def test_yfinance(symbols):
-    for symbol in symbols:
-        try:
-            stock = yf.Ticker(symbol)
-            hist = stock.history(period='1y')
-            if hist.empty:
-                print(f"No data available for {symbol}. Please check the symbol or its market activity.")
-            else:
-                print(f"Data fetched successfully for {symbol}:")
-                print(hist.head())
-        except Exception as e:
-            print(f"Failed to fetch data for {symbol}: {str(e)}")
-
-# List of stock symbols to test
-symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'XYZ123']  # Include both valid and a clearly invalid symbol for testing
-
-test_yfinance(symbols)
-
-
-
+def get_stock_data(symbol, period='1y'):
+    try:
+        stock = yf.Ticker(symbol)
+        hist = stock.history(period=period)
+        if hist.empty:
+            raise ValueError(f"No data found for symbol: {symbol}")
+        return hist
+    except Exception as e:
+        raise ValueError(f"Error fetching data for {symbol}: {str(e)}")
 
 def create_candlestick_chart(df):
     try:
@@ -138,4 +126,4 @@ def analyze():
         })
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8000) 
+    app.run(debug=True, host='0.0.0.0', port=8000)
