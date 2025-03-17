@@ -26,16 +26,11 @@ class StockAnalyzer {
     }
 
     async fetchStockData(symbol) {
-        const options = {
-            method: 'GET',
-            headers: {
-                'X-RapidAPI-Key': '2b2466c9e1msh4e0d5008f161c3dp1a1f89jsn0a0d5c6c54f6',
-                'X-RapidAPI-Host': 'yh-finance.p.rapidapi.com'
-            }
-        };
+        const apiKey = 'RNZPXZ6Q9FEFMEHM';
+        const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
 
         try {
-            const response = await fetch(`https://yh-finance.p.rapidapi.com/stock/v3/get-chart?interval=1d&symbol=${symbol}&range=1y&includePrePost=false`, options);
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -43,11 +38,33 @@ class StockAnalyzer {
             
             const data = await response.json();
             
-            if (data.chart.error) {
-                throw new Error(data.chart.error.description);
+            if (data['Error Message']) {
+                throw new Error(data['Error Message']);
             }
             
-            return data;
+            // Transform Alpha Vantage data to match our expected format
+            const timeSeriesData = data['Time Series (Daily)'];
+            const timestamps = Object.keys(timeSeriesData).sort();
+            const lastYear = timestamps.slice(-252); // Approximately 1 year of trading days
+
+            const transformedData = {
+                chart: {
+                    result: [{
+                        timestamp: lastYear.map(date => new Date(date).getTime() / 1000),
+                        indicators: {
+                            quote: [{
+                                open: lastYear.map(date => parseFloat(timeSeriesData[date]['1. open'])),
+                                high: lastYear.map(date => parseFloat(timeSeriesData[date]['2. high'])),
+                                low: lastYear.map(date => parseFloat(timeSeriesData[date]['3. low'])),
+                                close: lastYear.map(date => parseFloat(timeSeriesData[date]['4. close'])),
+                                volume: lastYear.map(date => parseFloat(timeSeriesData[date]['5. volume']))
+                            }]
+                        }
+                    }]
+                }
+            };
+            
+            return transformedData;
         } catch (error) {
             console.error('Error fetching stock data:', error);
             throw new Error('Failed to fetch stock data. Please try again later.');
