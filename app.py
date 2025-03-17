@@ -13,12 +13,14 @@ def get_stock_data(symbol, period='1y'):
     try:
         stock = yf.Ticker(symbol)
         hist = stock.history(period=period)
-        print(f"Data for {symbol}: {hist.head()}")  # Debug output to see what is retrieved
         if hist.empty:
+            print(f"Debug: Received empty dataset for {symbol}.")
             raise ValueError(f"No data found for symbol: {symbol}")
         return hist
     except Exception as e:
+        print(f"Debug: Exception occurred - {str(e)}")  # Capture and log the exact error message
         raise ValueError(f"Error fetching data for {symbol}: {str(e)}")
+
 
 
 def create_candlestick_chart(df):
