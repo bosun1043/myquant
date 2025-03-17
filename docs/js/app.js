@@ -18,10 +18,13 @@ class StockAnalyzer {
         this.showLoading();
         try {
             const data = await this.fetchStockData(symbol);
+            if (!data) {
+                throw new Error('No data received from API');
+            }
             this.processAndDisplayData(data);
         } catch (error) {
-            this.showError("Failed to fetch stock data. Please try again later.");
-            console.error(error);
+            this.showError(error.message);
+            console.error('Detailed error:', error);
         }
     }
 
@@ -30,21 +33,33 @@ class StockAnalyzer {
         const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
 
         try {
+            console.log('Fetching data from:', url);
             const response = await fetch(url);
+            console.log('Response status:', response.status);
             
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const data = await response.json();
+            console.log('Received data:', data);
             
             if (data['Error Message']) {
                 throw new Error(data['Error Message']);
+            }
+
+            if (!data['Time Series (Daily)']) {
+                throw new Error('No time series data available for this symbol');
             }
             
             // Transform Alpha Vantage data to match our expected format
             const timeSeriesData = data['Time Series (Daily)'];
             const timestamps = Object.keys(timeSeriesData).sort();
+            
+            if (timestamps.length === 0) {
+                throw new Error('No historical data available for this symbol');
+            }
+
             const lastYear = timestamps.slice(-252); // Approximately 1 year of trading days
 
             const transformedData = {
@@ -66,8 +81,11 @@ class StockAnalyzer {
             
             return transformedData;
         } catch (error) {
-            console.error('Error fetching stock data:', error);
-            throw new Error('Failed to fetch stock data. Please try again later.');
+            console.error('Detailed fetch error:', error);
+            if (error.message.includes('rate limit')) {
+                throw new Error('API rate limit exceeded. Please try again in a minute.');
+            }
+            throw new Error(`Failed to fetch stock data: ${error.message}`);
         }
     }
 
