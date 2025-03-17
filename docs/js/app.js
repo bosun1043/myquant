@@ -40,11 +40,19 @@ class StockAnalyzer {
         const resolution = 'D'; // Daily candles
 
         try {
+            // Configure fetch options with proper headers
+            const fetchOptions = {
+                method: 'GET',
+                headers: {
+                    'X-Finnhub-Token': apiKey
+                }
+            };
+
             // First, verify the symbol exists
-            const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}&token=${apiKey}`;
+            const quoteUrl = `https://finnhub.io/api/v1/quote?symbol=${symbol}`;
             console.log('Checking symbol validity:', quoteUrl);
             
-            const quoteResponse = await fetch(quoteUrl);
+            const quoteResponse = await fetch(quoteUrl, fetchOptions);
             console.log('Quote response status:', quoteResponse.status);
             
             if (!quoteResponse.ok) {
@@ -59,10 +67,10 @@ class StockAnalyzer {
             }
 
             // Then fetch historical data
-            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${oneYearAgo}&to=${today}&token=${apiKey}`;
+            const candleUrl = `https://finnhub.io/api/v1/stock/candle?symbol=${symbol}&resolution=${resolution}&from=${oneYearAgo}&to=${today}`;
             console.log('Fetching historical data:', candleUrl);
             
-            const candleResponse = await fetch(candleUrl);
+            const candleResponse = await fetch(candleUrl, fetchOptions);
             console.log('Candle response status:', candleResponse.status);
             
             if (!candleResponse.ok) {
