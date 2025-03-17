@@ -10,21 +10,24 @@ import numpy as np
 app = Flask(__name__)
 
 
+def test_yfinance(symbols):
+    for symbol in symbols:
+        try:
+            stock = yf.Ticker(symbol)
+            hist = stock.history(period='1y')
+            if hist.empty:
+                print(f"No data available for {symbol}. Please check the symbol or its market activity.")
+            else:
+                print(f"Data fetched successfully for {symbol}:")
+                print(hist.head())
+        except Exception as e:
+            print(f"Failed to fetch data for {symbol}: {str(e)}")
 
-def test_yfinance(symbol):
-    try:
-        stock = yf.Ticker(symbol)
-        hist = stock.history(period='1y')
-        if hist.empty:
-            print(f"No data available for {symbol}")
-        else:
-            print(f"Data fetched successfully for {symbol}")
-            print(hist.head())
-    except Exception as e:
-        print(f"Failed to fetch data for {symbol}: {str(e)}")
+# List of stock symbols to test
+symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'XYZ123']  # Include both valid and a clearly invalid symbol for testing
 
-# Replace 'AAPL' with any stock symbol you are interested in
-test_yfinance('AAPL')
+test_yfinance(symbols)
+
 
 
 
