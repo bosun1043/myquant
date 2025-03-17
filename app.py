@@ -13,11 +13,13 @@ def get_stock_data(symbol, period='1y'):
     try:
         stock = yf.Ticker(symbol)
         hist = stock.history(period=period)
+        print(f"Data for {symbol}: {hist.head()}")  # Debug output to see what is retrieved
         if hist.empty:
             raise ValueError(f"No data found for symbol: {symbol}")
         return hist
     except Exception as e:
         raise ValueError(f"Error fetching data for {symbol}: {str(e)}")
+
 
 def create_candlestick_chart(df):
     try:
@@ -64,10 +66,6 @@ def create_candlestick_chart(df):
     except Exception as e:
         raise ValueError(f"Error creating chart: {str(e)}")
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
@@ -78,6 +76,14 @@ def analyze():
                 'error': 'Stock symbol is required'
             })
         
+        # Validate symbol
+        stock = yf.Ticker(symbol)
+        if not stock.info['regularMarketPrice']:  # This checks if there is a market price available
+            return jsonify({
+                'success': False,
+                'error': f'No data available for {symbol}. Please check the symbol or its market activity.'
+            })
+        
         df = get_stock_data(symbol)
         
         if len(df) < 2:
@@ -85,6 +91,8 @@ def analyze():
                 'success': False,
                 'error': 'Insufficient data for analysis'
             })
+        
+
         
         # Calculate some basic metrics with safe indexing
         current_price = float(df['Close'].iloc[-1])
