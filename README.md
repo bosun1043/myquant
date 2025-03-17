@@ -13,7 +13,7 @@ A web-based platform for stock analysis and visualization, featuring interactive
 
 ## Live Demo
 
-Visit the live demo at: https://YOUR_USERNAME.github.io/YOUR_REPO
+Visit the live demo at: https://bosun1043.github.io/myquant
 
 ## Technologies Used
 
@@ -27,8 +27,8 @@ Visit the live demo at: https://YOUR_USERNAME.github.io/YOUR_REPO
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/bosun1043/myquant.git
+cd myquant
 ```
 
 2. Open the project in a web server. You can use Python's built-in server:
@@ -43,7 +43,7 @@ python -m http.server
 1. Fork this repository
 2. Go to your fork's Settings > Pages
 3. Set the source to the `main` branch and the folder to `/docs`
-4. Your site will be published at `https://YOUR_USERNAME.github.io/YOUR_REPO`
+4. Your site will be published at `https://YOUR_USERNAME.github.io/myquant`
 
 ## Contributing
 
