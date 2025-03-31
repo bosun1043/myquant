@@ -1,228 +1,326 @@
-class StockAnalyzer {
+class EducationDashboard {
     constructor() {
-        this.form = document.getElementById('stockForm');
-        this.results = document.getElementById('results');
-        this.loading = document.getElementById('loading');
-        this.error = document.getElementById('error');
+        this.currentData = null;
         this.setupEventListeners();
+        this.loadData();
     }
 
     setupEventListeners() {
-        this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.switchSection(e.target.dataset.section);
+            });
+        });
+
+        // Search
+        document.getElementById('searchButton').addEventListener('click', () => {
+            this.handleSearch();
+        });
+
+        // Region filter
+        document.getElementById('regionFilter').addEventListener('change', () => {
+            this.handleRegionFilter();
+        });
     }
 
-    async handleSubmit(e) {
-        e.preventDefault();
-        const symbol = document.getElementById('symbol').value.toUpperCase();
-        
-        this.showLoading();
+    async loadData() {
         try {
-            console.log(`Attempting to fetch data for symbol: ${symbol}`);
-            const data = await this.fetchStockData(symbol);
-            if (!data || !data.chart || !data.chart.result || !data.chart.result[0]) {
-                throw new Error('Invalid or empty data received from API');
-            }
-            this.processAndDisplayData(data);
+            // Load integrated education data
+            const response = await fetch('data/integrated_education_data.csv');
+            const csvText = await response.text();
+            this.currentData = this.parseCSV(csvText);
+            
+            // Update dashboard
+            this.updateOverview();
+            this.updateInfrastructure();
+            this.updateTextbooks();
+            this.updateKess();
         } catch (error) {
-            console.error('Error details:', {
-                message: error.message,
-                stack: error.stack,
-                error: error
-            });
-            this.showError(error.message);
+            console.error('Error loading data:', error);
         }
     }
 
-    async fetchStockData(symbol) {
-        const apiKey = 'demo'; // Using demo API key for testing
-        
-        try {
-            // Fetch daily time series data with CORS headers
-            const url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&outputsize=full&apikey=${apiKey}`;
-            console.log('Fetching data from:', url);
-            
-            const response = await fetch(url, {
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            });
-            console.log('Response status:', response.status);
-            
-            if (!response.ok) {
-                throw new Error(`API error! Status: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            console.log('Received data:', data);
-            
-            if (data['Error Message']) {
-                throw new Error(data['Error Message']);
-            }
-            
-            if (data['Note']) {
-                throw new Error('API rate limit exceeded. Please try again in a minute.');
-            }
-            
-            if (!data['Time Series (Daily)']) {
-                throw new Error('No data available for this symbol');
-            }
-
-            // Transform Alpha Vantage data to match our format
-            const timeSeriesData = data['Time Series (Daily)'];
-            const dates = Object.keys(timeSeriesData).sort();
-            const lastYear = dates.filter(date => {
-                const dateObj = new Date(date);
-                return dateObj >= new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
-            });
-
-            const transformedData = {
-                chart: {
-                    result: [{
-                        timestamp: lastYear.map(date => Math.floor(new Date(date).getTime() / 1000)),
-                        indicators: {
-                            quote: [{
-                                open: lastYear.map(date => parseFloat(timeSeriesData[date]['1. open'])),
-                                high: lastYear.map(date => parseFloat(timeSeriesData[date]['2. high'])),
-                                low: lastYear.map(date => parseFloat(timeSeriesData[date]['3. low'])),
-                                close: lastYear.map(date => parseFloat(timeSeriesData[date]['4. close'])),
-                                volume: lastYear.map(date => parseFloat(timeSeriesData[date]['5. volume']))
-                            }]
-                        }
-                    }]
-                }
-            };
-            
-            return transformedData;
-        } catch (error) {
-            console.error('API Error:', {
-                message: error.message,
-                stack: error.stack,
-                error: error
-            });
-            throw new Error(`Failed to fetch stock data: ${error.message}`);
-        }
+    parseCSV(csvText) {
+        const lines = csvText.split('\n');
+        const headers = lines[0].split(',');
+        return lines.slice(1).map(line => {
+            const values = line.split(',');
+            return headers.reduce((obj, header, index) => {
+                obj[header.trim()] = values[index]?.trim();
+                return obj;
+            }, {});
+        });
     }
 
-    processAndDisplayData(data) {
-        const quotes = data.chart.result[0];
-        const prices = quotes.indicators.quote[0];
-        
-        // Create time series data
-        const timeData = quotes.timestamp.map(t => new Date(t * 1000));
-        const ohlc = timeData.map((time, i) => ({
-            time,
-            open: prices.open[i],
-            high: prices.high[i],
-            low: prices.low[i],
-            close: prices.close[i],
-            volume: prices.volume[i]
-        })).filter(item => item.open && item.high && item.low && item.close);
+    switchSection(sectionId) {
+        // Update navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.dataset.section === sectionId) {
+                link.classList.add('active');
+            }
+        });
 
-        // Calculate statistics
-        const currentPrice = ohlc[ohlc.length - 1].close;
-        const previousPrice = ohlc[ohlc.length - 2].close;
-        const priceChange = currentPrice - previousPrice;
-        const priceChangePct = (priceChange / previousPrice) * 100;
+        // Show/hide sections
+        document.querySelectorAll('.dashboard-section').forEach(section => {
+            section.style.display = section.id === sectionId ? 'block' : 'none';
+        });
+    }
 
-        // Create chart
-        this.createChart(ohlc);
+    handleSearch() {
+        const searchTerm = document.getElementById('schoolSearch').value.toLowerCase();
+        if (!searchTerm) return;
+
+        const filteredData = this.currentData.filter(school => 
+            school.school_name?.toLowerCase().includes(searchTerm) ||
+            school.school_code?.includes(searchTerm)
+        );
+
+        this.updateChartsWithFilteredData(filteredData);
+    }
+
+    handleRegionFilter() {
+        const selectedRegion = document.getElementById('regionFilter').value;
+        if (!selectedRegion) {
+            this.updateChartsWithFilteredData(this.currentData);
+            return;
+        }
+
+        const filteredData = this.currentData.filter(school => 
+            school.region === selectedRegion
+        );
+
+        this.updateChartsWithFilteredData(filteredData);
+    }
+
+    updateOverview() {
+        if (!this.currentData) return;
 
         // Update statistics
-        document.getElementById('currentPrice').textContent = `$${currentPrice.toFixed(2)}`;
-        document.getElementById('priceChange').textContent = 
-            `$${priceChange.toFixed(2)} (${priceChangePct.toFixed(2)}%)`;
-        document.getElementById('priceChange').style.color = 
-            priceChange >= 0 ? '#4caf50' : '#f44336';
-        document.getElementById('volume').textContent = 
-            ohlc[ohlc.length - 1].volume.toLocaleString();
-        document.getElementById('high52w').textContent = 
-            `$${Math.max(...ohlc.map(d => d.high)).toFixed(2)}`;
-        document.getElementById('low52w').textContent = 
-            `$${Math.min(...ohlc.map(d => d.low)).toFixed(2)}`;
+        document.getElementById('totalSchools').textContent = this.currentData.length;
+        document.getElementById('totalStudents').textContent = this.calculateTotalStudents();
+        document.getElementById('avgComputers').textContent = this.calculateAverageComputers();
+        document.getElementById('avgKess').textContent = this.calculateAverageKess();
 
-        this.hideLoading();
-        this.results.style.display = 'block';
+        // Create region distribution chart
+        const regionData = this.calculateRegionDistribution();
+        this.createRegionChart(regionData);
+
+        // Create infrastructure overview chart
+        const infraData = this.calculateInfrastructureOverview();
+        this.createInfraChart(infraData);
     }
 
-    createChart(ohlc) {
-        const trace = {
-            x: ohlc.map(d => d.time),
-            open: ohlc.map(d => d.open),
-            high: ohlc.map(d => d.high),
-            low: ohlc.map(d => d.low),
-            close: ohlc.map(d => d.close),
-            type: 'candlestick',
-            name: 'OHLC'
+    updateInfrastructure() {
+        if (!this.currentData) return;
+
+        const schoolInfraData = this.calculateSchoolInfrastructure();
+        this.createSchoolInfraChart(schoolInfraData);
+    }
+
+    updateTextbooks() {
+        if (!this.currentData) return;
+
+        const textbookData = this.calculateTextbookStats();
+        this.createTextbookChart(textbookData);
+    }
+
+    updateKess() {
+        if (!this.currentData) return;
+
+        const kessData = this.calculateKessTrends();
+        this.createKessChart(kessData);
+    }
+
+    // Helper methods for calculations
+    calculateTotalStudents() {
+        return this.currentData.reduce((sum, school) => 
+            sum + (parseInt(school.total_students) || 0), 0
+        ).toLocaleString();
+    }
+
+    calculateAverageComputers() {
+        const total = this.currentData.reduce((sum, school) => 
+            sum + (parseInt(school.computer_count) || 0), 0
+        );
+        return (total / this.currentData.length).toFixed(1);
+    }
+
+    calculateAverageKess() {
+        const total = this.currentData.reduce((sum, school) => 
+            sum + (parseFloat(school.kess_score) || 0), 0
+        );
+        return (total / this.currentData.length).toFixed(2);
+    }
+
+    calculateRegionDistribution() {
+        const distribution = {};
+        this.currentData.forEach(school => {
+            const region = school.region || '기타';
+            distribution[region] = (distribution[region] || 0) + 1;
+        });
+        return distribution;
+    }
+
+    calculateInfrastructureOverview() {
+        const overview = {
+            '컴퓨터': 0,
+            '인터넷': 0,
+            '스마트교실': 0
         };
 
-        // Calculate moving averages
-        const sma20 = this.calculateSMA(ohlc.map(d => d.close), 20);
-        const sma50 = this.calculateSMA(ohlc.map(d => d.close), 50);
+        this.currentData.forEach(school => {
+            overview['컴퓨터'] += parseInt(school.computer_count) || 0;
+            overview['인터넷'] += parseInt(school.internet_speed) || 0;
+            overview['스마트교실'] += parseInt(school.smart_classroom_count) || 0;
+        });
+
+        return overview;
+    }
+
+    calculateSchoolInfrastructure() {
+        return this.currentData.map(school => ({
+            name: school.school_name,
+            computers: parseInt(school.computer_count) || 0,
+            internet: parseInt(school.internet_speed) || 0,
+            smartClassrooms: parseInt(school.smart_classroom_count) || 0
+        }));
+    }
+
+    calculateTextbookStats() {
+        const stats = {
+            '수정': 0,
+            '보완': 0,
+            '신규': 0
+        };
+
+        this.currentData.forEach(school => {
+            stats['수정'] += parseInt(school.textbook_modifications) || 0;
+            stats['보완'] += parseInt(school.textbook_improvements) || 0;
+            stats['신규'] += parseInt(school.textbook_new) || 0;
+        });
+
+        return stats;
+    }
+
+    calculateKessTrends() {
+        const trends = {
+            years: [],
+            scores: []
+        };
+
+        // Assuming we have KESS data for multiple years
+        const years = [...new Set(this.currentData.map(school => school.year))].sort();
+        years.forEach(year => {
+            const yearData = this.currentData.filter(school => school.year === year);
+            const avgScore = yearData.reduce((sum, school) => 
+                sum + (parseFloat(school.kess_score) || 0), 0
+            ) / yearData.length;
+
+            trends.years.push(year);
+            trends.scores.push(avgScore);
+        });
+
+        return trends;
+    }
+
+    // Chart creation methods
+    createRegionChart(data) {
+        const trace = {
+            values: Object.values(data),
+            labels: Object.keys(data),
+            type: 'pie',
+            hole: 0.4
+        };
 
         const layout = {
-            title: 'Stock Price Chart with Moving Averages',
-            yaxis: { title: 'Stock Price (USD)' },
-            xaxis: { title: 'Date' },
-            template: 'plotly_dark',
-            showlegend: true
+            title: '지역별 학교 분포',
+            showlegend: true,
+            height: 400
         };
 
-        const data = [
-            trace,
-            {
-                x: ohlc.map(d => d.time),
-                y: sma20,
-                type: 'scatter',
-                line: { color: 'orange', width: 2 },
-                name: '20-day SMA'
-            },
-            {
-                x: ohlc.map(d => d.time),
-                y: sma50,
-                type: 'scatter',
-                line: { color: 'blue', width: 2 },
-                name: '50-day SMA'
-            }
-        ];
-
-        Plotly.newPlot('stockChart', data, layout);
+        Plotly.newPlot('regionChart', [trace], layout);
     }
 
-    calculateSMA(data, window) {
-        const sma = [];
-        for (let i = 0; i < data.length; i++) {
-            if (i < window - 1) {
-                sma.push(null);
-                continue;
-            }
-            const sum = data.slice(i - window + 1, i + 1).reduce((a, b) => a + b, 0);
-            sma.push(sum / window);
-        }
-        return sma;
+    createInfraChart(data) {
+        const trace = {
+            x: Object.keys(data),
+            y: Object.values(data),
+            type: 'bar'
+        };
+
+        const layout = {
+            title: '디지털 인프라 현황',
+            yaxis: { title: '수량' },
+            height: 400
+        };
+
+        Plotly.newPlot('infraChart', [trace], layout);
     }
 
-    showLoading() {
-        this.results.style.display = 'none';
-        this.error.style.display = 'none';
-        this.loading.style.display = 'block';
+    createSchoolInfraChart(data) {
+        const trace = {
+            x: data.map(school => school.name),
+            y: data.map(school => school.computers),
+            type: 'bar',
+            name: '컴퓨터 수'
+        };
+
+        const layout = {
+            title: '학교별 컴퓨터 보유 현황',
+            yaxis: { title: '컴퓨터 수' },
+            height: 400
+        };
+
+        Plotly.newPlot('schoolInfraChart', [trace], layout);
     }
 
-    hideLoading() {
-        this.loading.style.display = 'none';
+    createTextbookChart(data) {
+        const trace = {
+            x: Object.keys(data),
+            y: Object.values(data),
+            type: 'bar'
+        };
+
+        const layout = {
+            title: '교과서 수정 보완 현황',
+            yaxis: { title: '수량' },
+            height: 400
+        };
+
+        Plotly.newPlot('textbookChart', [trace], layout);
     }
 
-    showError(message) {
-        this.hideLoading();
-        this.results.style.display = 'none';
-        this.error.textContent = `Error: ${message}`;
-        this.error.style.display = 'block';
+    createKessChart(data) {
+        const trace = {
+            x: data.years,
+            y: data.scores,
+            type: 'scatter',
+            mode: 'lines+markers'
+        };
+
+        const layout = {
+            title: 'KESS 지표 추이',
+            yaxis: { title: 'KESS 점수' },
+            xaxis: { title: '연도' },
+            height: 400
+        };
+
+        Plotly.newPlot('kessChart', [trace], layout);
+    }
+
+    updateChartsWithFilteredData(filteredData) {
+        this.currentData = filteredData;
+        this.updateOverview();
+        this.updateInfrastructure();
+        this.updateTextbooks();
+        this.updateKess();
     }
 }
 
-// Initialize the application
+// Initialize the dashboard when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    new StockAnalyzer();
+    new EducationDashboard();
 }); 
