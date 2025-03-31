@@ -23,6 +23,11 @@ class EducationDashboard {
         document.getElementById('regionFilter').addEventListener('change', () => {
             this.handleRegionFilter();
         });
+
+        // Year filter
+        document.getElementById('yearFilter').addEventListener('change', () => {
+            this.handleYearFilter();
+        });
     }
 
     async loadData() {
@@ -34,9 +39,10 @@ class EducationDashboard {
             
             // Update dashboard
             this.updateOverview();
-            this.updateInfrastructure();
-            this.updateTextbooks();
-            this.updateKess();
+            this.updateDigitalResources();
+            this.updateAchievement();
+            this.updateCorrelation();
+            this.updatePolicy();
         } catch (error) {
             console.error('Error loading data:', error);
         }
@@ -95,43 +101,72 @@ class EducationDashboard {
         this.updateChartsWithFilteredData(filteredData);
     }
 
+    handleYearFilter() {
+        const selectedYear = document.getElementById('yearFilter').value;
+        if (!selectedYear) {
+            this.updateChartsWithFilteredData(this.currentData);
+            return;
+        }
+
+        const filteredData = this.currentData.filter(school => 
+            school.year === selectedYear
+        );
+
+        this.updateChartsWithFilteredData(filteredData);
+    }
+
     updateOverview() {
         if (!this.currentData) return;
 
         // Update statistics
         document.getElementById('totalSchools').textContent = this.currentData.length;
         document.getElementById('totalStudents').textContent = this.calculateTotalStudents();
-        document.getElementById('avgComputers').textContent = this.calculateAverageComputers();
-        document.getElementById('avgKess').textContent = this.calculateAverageKess();
+        document.getElementById('avgDigitalScore').textContent = this.calculateAverageDigitalScore();
+        document.getElementById('avgMathScore').textContent = this.calculateAverageMathScore();
 
-        // Create region distribution chart
-        const regionData = this.calculateRegionDistribution();
-        this.createRegionChart(regionData);
+        // Create region distribution charts
+        const regionDigitalData = this.calculateRegionDigitalDistribution();
+        this.createRegionDigitalChart(regionDigitalData);
 
-        // Create infrastructure overview chart
-        const infraData = this.calculateInfrastructureOverview();
-        this.createInfraChart(infraData);
+        const regionMathData = this.calculateRegionMathDistribution();
+        this.createRegionMathChart(regionMathData);
     }
 
-    updateInfrastructure() {
+    updateDigitalResources() {
         if (!this.currentData) return;
 
-        const schoolInfraData = this.calculateSchoolInfrastructure();
-        this.createSchoolInfraChart(schoolInfraData);
+        const digitalInfraData = this.calculateDigitalInfrastructure();
+        this.createDigitalInfraChart(digitalInfraData);
+
+        const digitalUsageData = this.calculateDigitalUsage();
+        this.createDigitalUsageChart(digitalUsageData);
     }
 
-    updateTextbooks() {
+    updateAchievement() {
         if (!this.currentData) return;
 
-        const textbookData = this.calculateTextbookStats();
-        this.createTextbookChart(textbookData);
+        const achievementDistData = this.calculateAchievementDistribution();
+        this.createAchievementDistChart(achievementDistData);
+
+        const achievementTrendData = this.calculateAchievementTrends();
+        this.createAchievementTrendChart(achievementTrendData);
     }
 
-    updateKess() {
+    updateCorrelation() {
         if (!this.currentData) return;
 
-        const kessData = this.calculateKessTrends();
-        this.createKessChart(kessData);
+        const correlationData = this.calculateCorrelation();
+        this.createCorrelationChart(correlationData);
+    }
+
+    updatePolicy() {
+        if (!this.currentData) return;
+
+        const policyEffectData = this.calculatePolicyEffect();
+        this.createPolicyEffectChart(policyEffectData);
+
+        const policyRegionData = this.calculatePolicyRegionEffect();
+        this.createPolicyRegionChart(policyRegionData);
     }
 
     // Helper methods for calculations
@@ -141,93 +176,115 @@ class EducationDashboard {
         ).toLocaleString();
     }
 
-    calculateAverageComputers() {
+    calculateAverageDigitalScore() {
         const total = this.currentData.reduce((sum, school) => 
-            sum + (parseInt(school.computer_count) || 0), 0
-        );
-        return (total / this.currentData.length).toFixed(1);
-    }
-
-    calculateAverageKess() {
-        const total = this.currentData.reduce((sum, school) => 
-            sum + (parseFloat(school.kess_score) || 0), 0
+            sum + (parseFloat(school.digital_score) || 0), 0
         );
         return (total / this.currentData.length).toFixed(2);
     }
 
-    calculateRegionDistribution() {
+    calculateAverageMathScore() {
+        const total = this.currentData.reduce((sum, school) => 
+            sum + (parseFloat(school.math_score) || 0), 0
+        );
+        return (total / this.currentData.length).toFixed(2);
+    }
+
+    calculateRegionDigitalDistribution() {
         const distribution = {};
         this.currentData.forEach(school => {
             const region = school.region || '기타';
-            distribution[region] = (distribution[region] || 0) + 1;
+            distribution[region] = (distribution[region] || 0) + parseFloat(school.digital_score) || 0;
         });
         return distribution;
     }
 
-    calculateInfrastructureOverview() {
-        const overview = {
-            '컴퓨터': 0,
-            '인터넷': 0,
-            '스마트교실': 0
-        };
-
+    calculateRegionMathDistribution() {
+        const distribution = {};
         this.currentData.forEach(school => {
-            overview['컴퓨터'] += parseInt(school.computer_count) || 0;
-            overview['인터넷'] += parseInt(school.internet_speed) || 0;
-            overview['스마트교실'] += parseInt(school.smart_classroom_count) || 0;
+            const region = school.region || '기타';
+            distribution[region] = (distribution[region] || 0) + parseFloat(school.math_score) || 0;
         });
-
-        return overview;
+        return distribution;
     }
 
-    calculateSchoolInfrastructure() {
-        return this.currentData.map(school => ({
-            name: school.school_name,
-            computers: parseInt(school.computer_count) || 0,
-            internet: parseInt(school.internet_speed) || 0,
-            smartClassrooms: parseInt(school.smart_classroom_count) || 0
-        }));
-    }
-
-    calculateTextbookStats() {
-        const stats = {
-            '수정': 0,
-            '보완': 0,
-            '신규': 0
+    calculateDigitalInfrastructure() {
+        return {
+            '컴퓨터': this.currentData.reduce((sum, school) => sum + (parseInt(school.computer_count) || 0), 0),
+            '인터넷': this.currentData.reduce((sum, school) => sum + (parseInt(school.internet_speed) || 0), 0),
+            '스마트교실': this.currentData.reduce((sum, school) => sum + (parseInt(school.smart_classroom_count) || 0), 0),
+            '디지털교과서': this.currentData.reduce((sum, school) => sum + (parseInt(school.digital_textbook_count) || 0), 0)
         };
-
-        this.currentData.forEach(school => {
-            stats['수정'] += parseInt(school.textbook_modifications) || 0;
-            stats['보완'] += parseInt(school.textbook_improvements) || 0;
-            stats['신규'] += parseInt(school.textbook_new) || 0;
-        });
-
-        return stats;
     }
 
-    calculateKessTrends() {
-        const trends = {
-            years: [],
-            scores: []
+    calculateDigitalUsage() {
+        return {
+            '수업활용': this.currentData.reduce((sum, school) => sum + (parseFloat(school.class_usage_rate) || 0), 0) / this.currentData.length,
+            '학생활용': this.currentData.reduce((sum, school) => sum + (parseFloat(school.student_usage_rate) || 0), 0) / this.currentData.length,
+            '교사활용': this.currentData.reduce((sum, school) => sum + (parseFloat(school.teacher_usage_rate) || 0), 0) / this.currentData.length
         };
+    }
 
-        // Assuming we have KESS data for multiple years
+    calculateAchievementDistribution() {
+        const scores = this.currentData.map(school => parseFloat(school.math_score) || 0);
+        return {
+            scores: scores,
+            bins: Array.from({length: 10}, (_, i) => i * 10)
+        };
+    }
+
+    calculateAchievementTrends() {
         const years = [...new Set(this.currentData.map(school => school.year))].sort();
-        years.forEach(year => {
-            const yearData = this.currentData.filter(school => school.year === year);
-            const avgScore = yearData.reduce((sum, school) => 
-                sum + (parseFloat(school.kess_score) || 0), 0
-            ) / yearData.length;
-
-            trends.years.push(year);
-            trends.scores.push(avgScore);
-        });
-
+        const trends = {
+            years: years,
+            scores: years.map(year => {
+                const yearData = this.currentData.filter(school => school.year === year);
+                return yearData.reduce((sum, school) => sum + (parseFloat(school.math_score) || 0), 0) / yearData.length;
+            })
+        };
         return trends;
     }
 
+    calculateCorrelation() {
+        const digitalScores = this.currentData.map(school => parseFloat(school.digital_score) || 0);
+        const mathScores = this.currentData.map(school => parseFloat(school.math_score) || 0);
+        return {
+            x: digitalScores,
+            y: mathScores
+        };
+    }
+
+    calculatePolicyEffect() {
+        const years = [...new Set(this.currentData.map(school => school.year))].sort();
+        return {
+            years: years,
+            before: years.map(year => {
+                const yearData = this.currentData.filter(school => school.year === year && school.policy_status === 'before');
+                return yearData.reduce((sum, school) => sum + (parseFloat(school.math_score) || 0), 0) / yearData.length;
+            }),
+            after: years.map(year => {
+                const yearData = this.currentData.filter(school => school.year === year && school.policy_status === 'after');
+                return yearData.reduce((sum, school) => sum + (parseFloat(school.math_score) || 0), 0) / yearData.length;
+            })
+        };
+    }
+
+    calculatePolicyRegionEffect() {
+        const regions = [...new Set(this.currentData.map(school => school.region))];
+        return regions.map(region => {
+            const regionData = this.currentData.filter(school => school.region === region);
+            return {
+                region: region,
+                before: regionData.filter(school => school.policy_status === 'before')
+                    .reduce((sum, school) => sum + (parseFloat(school.math_score) || 0), 0) / regionData.length,
+                after: regionData.filter(school => school.policy_status === 'after')
+                    .reduce((sum, school) => sum + (parseFloat(school.math_score) || 0), 0) / regionData.length
+            };
+        });
+    }
+
     // Chart creation methods
-    createRegionChart(data) {
+    createRegionDigitalChart(data) {
         const trace = {
             values: Object.values(data),
             labels: Object.keys(data),
@@ -236,15 +293,32 @@ class EducationDashboard {
         };
 
         const layout = {
-            title: '지역별 학교 분포',
+            title: '지역별 디지털 접근성 분포',
             showlegend: true,
             height: 400
         };
 
-        Plotly.newPlot('regionChart', [trace], layout);
+        Plotly.newPlot('regionDigitalChart', [trace], layout);
     }
 
-    createInfraChart(data) {
+    createRegionMathChart(data) {
+        const trace = {
+            values: Object.values(data),
+            labels: Object.keys(data),
+            type: 'pie',
+            hole: 0.4
+        };
+
+        const layout = {
+            title: '지역별 수학 성취도 분포',
+            showlegend: true,
+            height: 400
+        };
+
+        Plotly.newPlot('regionMathChart', [trace], layout);
+    }
+
+    createDigitalInfraChart(data) {
         const trace = {
             x: Object.keys(data),
             y: Object.values(data),
@@ -252,32 +326,15 @@ class EducationDashboard {
         };
 
         const layout = {
-            title: '디지털 인프라 현황',
+            title: '디지털 인프라 구성',
             yaxis: { title: '수량' },
             height: 400
         };
 
-        Plotly.newPlot('infraChart', [trace], layout);
+        Plotly.newPlot('digitalInfraChart', [trace], layout);
     }
 
-    createSchoolInfraChart(data) {
-        const trace = {
-            x: data.map(school => school.name),
-            y: data.map(school => school.computers),
-            type: 'bar',
-            name: '컴퓨터 수'
-        };
-
-        const layout = {
-            title: '학교별 컴퓨터 보유 현황',
-            yaxis: { title: '컴퓨터 수' },
-            height: 400
-        };
-
-        Plotly.newPlot('schoolInfraChart', [trace], layout);
-    }
-
-    createTextbookChart(data) {
+    createDigitalUsageChart(data) {
         const trace = {
             x: Object.keys(data),
             y: Object.values(data),
@@ -285,15 +342,32 @@ class EducationDashboard {
         };
 
         const layout = {
-            title: '교과서 수정 보완 현황',
-            yaxis: { title: '수량' },
+            title: '디지털 자원 활용도',
+            yaxis: { title: '활용률 (%)' },
             height: 400
         };
 
-        Plotly.newPlot('textbookChart', [trace], layout);
+        Plotly.newPlot('digitalUsageChart', [trace], layout);
     }
 
-    createKessChart(data) {
+    createAchievementDistChart(data) {
+        const trace = {
+            x: data.scores,
+            type: 'histogram',
+            nbinsx: 10
+        };
+
+        const layout = {
+            title: '수학 성취도 분포',
+            xaxis: { title: '성취도 점수' },
+            yaxis: { title: '학교 수' },
+            height: 400
+        };
+
+        Plotly.newPlot('achievementDistChart', [trace], layout);
+    }
+
+    createAchievementTrendChart(data) {
         const trace = {
             x: data.years,
             y: data.scores,
@@ -302,21 +376,92 @@ class EducationDashboard {
         };
 
         const layout = {
-            title: 'KESS 지표 추이',
-            yaxis: { title: 'KESS 점수' },
+            title: '연도별 수학 성취도 추이',
             xaxis: { title: '연도' },
+            yaxis: { title: '평균 성취도' },
             height: 400
         };
 
-        Plotly.newPlot('kessChart', [trace], layout);
+        Plotly.newPlot('achievementTrendChart', [trace], layout);
+    }
+
+    createCorrelationChart(data) {
+        const trace = {
+            x: data.x,
+            y: data.y,
+            type: 'scatter',
+            mode: 'markers'
+        };
+
+        const layout = {
+            title: '디지털 접근성과 수학 성취도 상관관계',
+            xaxis: { title: '디지털 접근성 지수' },
+            yaxis: { title: '수학 성취도' },
+            height: 400
+        };
+
+        Plotly.newPlot('correlationChart', [trace], layout);
+    }
+
+    createPolicyEffectChart(data) {
+        const beforeTrace = {
+            x: data.years,
+            y: data.before,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: '정책 시행 전'
+        };
+
+        const afterTrace = {
+            x: data.years,
+            y: data.after,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: '정책 시행 후'
+        };
+
+        const layout = {
+            title: '정책 시행 전후 수학 성취도 비교',
+            xaxis: { title: '연도' },
+            yaxis: { title: '평균 성취도' },
+            height: 400
+        };
+
+        Plotly.newPlot('policyEffectChart', [beforeTrace, afterTrace], layout);
+    }
+
+    createPolicyRegionChart(data) {
+        const beforeTrace = {
+            x: data.map(d => d.region),
+            y: data.map(d => d.before),
+            type: 'bar',
+            name: '정책 시행 전'
+        };
+
+        const afterTrace = {
+            x: data.map(d => d.region),
+            y: data.map(d => d.after),
+            type: 'bar',
+            name: '정책 시행 후'
+        };
+
+        const layout = {
+            title: '지역별 정책 효과',
+            xaxis: { title: '지역' },
+            yaxis: { title: '평균 성취도' },
+            height: 400
+        };
+
+        Plotly.newPlot('policyRegionChart', [beforeTrace, afterTrace], layout);
     }
 
     updateChartsWithFilteredData(filteredData) {
         this.currentData = filteredData;
         this.updateOverview();
-        this.updateInfrastructure();
-        this.updateTextbooks();
-        this.updateKess();
+        this.updateDigitalResources();
+        this.updateAchievement();
+        this.updateCorrelation();
+        this.updatePolicy();
     }
 }
 
