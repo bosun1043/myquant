@@ -1,142 +1,147 @@
 from flask import Flask, render_template, request, jsonify
-import yfinance as yf
 import pandas as pd
 import plotly
 import plotly.graph_objs as go
 import json
-from datetime import datetime, timedelta
 import numpy as np
-from alpha_vantage.timeseries import TimeSeries
 
 app = Flask(__name__)
 
-
-def get_stock_data_alpha_vantage(symbol):
-    ts = TimeSeries(key='YOUR_API_KEY', output_format='pandas')
+def load_education_data():
     try:
-        data, meta_data = ts.get_daily(symbol=symbol, outputsize='full')
-        if data.empty:
-            raise ValueError(f"No data found for symbol: {symbol}")
-        return data
+        df = pd.read_csv('docs/data/integrated_education_data.csv')
+        return df
     except Exception as e:
-        raise ValueError(f"Error fetching data for {symbol}: {str(e)}")
+        raise ValueError(f"Error loading education data: {str(e)}")
 
-# Example usage
-data = get_stock_data_alpha_vantage('MSFT')  # Replace 'MSFT' with your desired symbol
-print(data.head())
+def create_overview_charts(df):
+    # Region distribution chart
+    region_data = df.groupby('region')['digital_score'].mean()
+    region_chart = go.Figure(data=[go.Pie(
+        labels=region_data.index,
+        values=region_data.values,
+        hole=0.4
+    )])
+    region_chart.update_layout(title='지역별 디지털 접근성 분포')
+    
+    # Achievement distribution chart
+    achievement_chart = go.Figure(data=[go.Histogram(
+        x=df['math_score'],
+        nbinsx=10
+    )])
+    achievement_chart.update_layout(
+        title='수학 성취도 분포',
+        xaxis_title='성취도 점수',
+        yaxis_title='학교 수'
+    )
+    
+    return {
+        'region_chart': json.dumps(region_chart, cls=plotly.utils.PlotlyJSONEncoder),
+        'achievement_chart': json.dumps(achievement_chart, cls=plotly.utils.PlotlyJSONEncoder)
+    }
 
+def create_correlation_chart(df):
+    fig = go.Figure(data=[go.Scatter(
+        x=df['digital_score'],
+        y=df['math_score'],
+        mode='markers'
+    )])
+    fig.update_layout(
+        title='디지털 접근성과 수학 성취도 상관관계',
+        xaxis_title='디지털 접근성 지수',
+        yaxis_title='수학 성취도'
+    )
+    return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-
-def create_candlestick_chart(df):
-    try:
-        # Add moving averages to the chart
-        sma20 = df['Close'].rolling(window=20).mean()
-        sma50 = df['Close'].rolling(window=50).mean()
-        
-        fig = go.Figure()
-        
-        # Add candlestick
-        fig.add_trace(go.Candlestick(
-            x=df.index,
-            open=df['Open'],
-            high=df['High'],
-            low=df['Low'],
-            close=df['Close'],
-            name='OHLC'
-        ))
-        
-        # Add moving average traces
+def create_policy_effect_chart(df):
+    policy_data = df.groupby(['year', 'policy_status'])['math_score'].mean().unstack()
+    
+    fig = go.Figure()
+    for status in policy_data.columns:
         fig.add_trace(go.Scatter(
-            x=df.index,
-            y=sma20,
-            line=dict(color='orange', width=2),
-            name='20-day SMA'
+            x=policy_data.index,
+            y=policy_data[status],
+            name=f'정책 시행 {status}',
+            mode='lines+markers'
         ))
-        
-        fig.add_trace(go.Scatter(
-            x=df.index,
-            y=sma50,
-            line=dict(color='blue', width=2),
-            name='50-day SMA'
-        ))
-        
-        fig.update_layout(
-            title='Stock Price Chart with Moving Averages',
-            yaxis_title='Stock Price (USD)',
-            xaxis_title='Date',
-            template='plotly_dark',
-            showlegend=True
-        )
-        
-        return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    except Exception as e:
-        raise ValueError(f"Error creating chart: {str(e)}")
+    
+    fig.update_layout(
+        title='정책 시행 전후 수학 성취도 비교',
+        xaxis_title='연도',
+        yaxis_title='평균 성취도'
+    )
+    return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/api/overview')
+def overview():
     try:
-        symbol = request.form.get('symbol')
-        if not symbol:
-            return jsonify({
-                'success': False,
-                'error': 'Stock symbol is required'
-            })
+        df = load_education_data()
+        charts = create_overview_charts(df)
         
-        # Validate symbol
-        stock = yf.Ticker(symbol)
-        if not stock.info['regularMarketPrice']:  # This checks if there is a market price available
-            return jsonify({
-                'success': False,
-                'error': f'No data available for {symbol}. Please check the symbol or its market activity.'
-            })
-        
-        df = get_stock_data(symbol)
-        
-        if len(df) < 2:
-            return jsonify({
-                'success': False,
-                'error': 'Insufficient data for analysis'
-            })
-        
-
-        
-        # Calculate some basic metrics with safe indexing
-        current_price = float(df['Close'].iloc[-1])
-        price_change = current_price - float(df['Close'].iloc[-2])
-        price_change_pct = (price_change / float(df['Close'].iloc[-2])) * 100
-        
-        # Create candlestick chart
-        chart_json = create_candlestick_chart(df)
-        
-        # Calculate simple moving averages
-        df['SMA_20'] = df['Close'].rolling(window=20).mean()
-        df['SMA_50'] = df['Close'].rolling(window=50).mean()
-        
-        # Basic statistics with safe type conversion
         stats = {
-            'current_price': round(float(current_price), 2),
-            'price_change': round(float(price_change), 2),
-            'price_change_pct': round(float(price_change_pct), 2),
-            'volume': int(df['Volume'].iloc[-1]),
-            'high_52w': round(float(df['High'].max()), 2),
-            'low_52w': round(float(df['Low'].min()), 2)
+            'total_schools': len(df),
+            'total_students': df['total_students'].sum(),
+            'avg_digital_score': round(df['digital_score'].mean(), 2),
+            'avg_math_score': round(df['math_score'].mean(), 2)
         }
         
         return jsonify({
             'success': True,
-            'chart': chart_json,
+            'charts': charts,
             'stats': stats
-        })
-    
-    except ValueError as ve:
-        return jsonify({
-            'success': False,
-            'error': str(ve)
         })
     except Exception as e:
         return jsonify({
             'success': False,
-            'error': f'An unexpected error occurred: {str(e)}'
+            'error': str(e)
+        })
+
+@app.route('/api/correlation')
+def correlation():
+    try:
+        df = load_education_data()
+        chart = create_correlation_chart(df)
+        
+        # Calculate correlation coefficient
+        correlation = round(df['digital_score'].corr(df['math_score']), 3)
+        
+        return jsonify({
+            'success': True,
+            'chart': chart,
+            'correlation': correlation
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+@app.route('/api/policy')
+def policy():
+    try:
+        df = load_education_data()
+        chart = create_policy_effect_chart(df)
+        
+        # Calculate policy effect
+        policy_effect = round(
+            df[df['policy_status'] == 'after']['math_score'].mean() -
+            df[df['policy_status'] == 'before']['math_score'].mean(),
+            2
+        )
+        
+        return jsonify({
+            'success': True,
+            'chart': chart,
+            'policy_effect': policy_effect
+        })
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
         })
 
 if __name__ == '__main__':
