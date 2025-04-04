@@ -137,18 +137,51 @@
         <!-- 디지털 자원 섹션 -->
         <div id="digital-resources" class="dashboard-section" style="display: none;">
             <h2>디지털 학습 자원 현황</h2>
-            <div class="row">
+            
+            <!-- Button Group for Visualization Control -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary active" data-visualization="trend">변화 추이</button>
+                        <button type="button" class="btn btn-primary" data-visualization="infra">인프라 구성</button>
+                        <button type="button" class="btn btn-primary" data-visualization="usage">자원 활용도</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Visualization -->
+            <div class="row visualization-section" id="trend-visualization">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">디지털 자원 변화 추이 (2021-2023)</h5>
-                            <img src="data/digital_resources/digital_resources_trend.png" alt="디지털 자원 변화 추이" class="img-fluid">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>연도</th>
+                                            <th>전체 컴퓨터 수</th>
+                                            <th>학생용 컴퓨터 비율 (%)</th>
+                                            <th>교사용 컴퓨터 비율 (%)</th>
+                                            <th>직원용 컴퓨터 비율 (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trend-data">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4">
+                                <img src="data/digital_resources/digital_resources_trend.png" alt="디지털 자원 변화 추이" class="img-fluid">
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row mt-4">
-                <div class="col-md-6">
+
+            <!-- Infrastructure Visualization -->
+            <div class="row visualization-section" id="infra-visualization" style="display: none;">
+                <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">디지털 인프라 구성</h5>
@@ -156,7 +189,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+            </div>
+
+            <!-- Usage Visualization -->
+            <div class="row visualization-section" id="usage-visualization" style="display: none;">
+                <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">디지털 자원 활용도</h5>
@@ -193,12 +230,40 @@
         <!-- 상관관계 분석 섹션 -->
         <div id="correlation" class="dashboard-section" style="display: none;">
             <h2>디지털 자원과 성취도 상관관계</h2>
-            <div class="row">
+            
+            <!-- Button Group for Correlation Analysis -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary active" data-correlation="visualization">상관관계 시각화</button>
+                        <button type="button" class="btn btn-primary" data-correlation="summary">상관관계 요약</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Visualization -->
+            <div class="row correlation-section" id="visualization-section">
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-body">
-                            <h5 class="card-title">상관관계 분석</h5>
-                            <div id="correlationChart"></div>
+                            <h5 class="card-title">디지털 자원과 학교 운영률의 상관관계</h5>
+                            <img src="data/correlation_analysis.png" alt="상관관계 분석" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Summary -->
+            <div class="row correlation-section" id="summary-section" style="display: none;">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">상관관계 분석 요약</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="correlation-summary">
+                                    <!-- Data will be populated by JavaScript -->
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -229,8 +294,140 @@
         </div>
     </div>
 
+    <style>
+        .visualization-section {
+            margin-bottom: 2rem;
+        }
+        .btn-group {
+            margin-bottom: 1rem;
+        }
+        .table-responsive {
+            margin-bottom: 1rem;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 8px;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+        }
+    </style>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="js/app.js"></script>
+    <script>
+        // Add this to your existing JavaScript
+        document.addEventListener('DOMContentLoaded', function() {
+            // Visualization button handlers
+            const buttons = document.querySelectorAll('[data-visualization]');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all visualizations
+                    document.querySelectorAll('.visualization-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected visualization
+                    const visualization = this.dataset.visualization;
+                    document.getElementById(`${visualization}-visualization`).style.display = 'block';
+                });
+            });
+
+            // Load trend data from CSV
+            fetch('data/digital_resources/digital_resources_summary.csv')
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n');
+                    const tbody = document.getElementById('trend-data');
+                    
+                    // Skip header row
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].split(',');
+                        if (cells.length > 1) {
+                            const row = document.createElement('tr');
+                            cells.forEach(cell => {
+                                const td = document.createElement('td');
+                                td.textContent = cell;
+                                row.appendChild(td);
+                            });
+                            tbody.appendChild(row);
+                        }
+                    }
+                });
+
+            // Correlation button handlers
+            const correlationButtons = document.querySelectorAll('[data-correlation]');
+            correlationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    correlationButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all correlation sections
+                    document.querySelectorAll('.correlation-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected section
+                    const correlation = this.dataset.correlation;
+                    document.getElementById(`${correlation}-section`).style.display = 'block';
+                });
+            });
+
+            // Load correlation summary data
+            fetch('data/correlation_summary.csv')
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n');
+                    const table = document.getElementById('correlation-summary');
+                    
+                    // Create header row
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    rows[0].split(',').forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    // Create body
+                    const tbody = document.createElement('tbody');
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].split(',');
+                        if (cells.length > 1) {
+                            const row = document.createElement('tr');
+                            cells.forEach(cell => {
+                                const td = document.createElement('td');
+                                td.textContent = cell;
+                                row.appendChild(td);
+                            });
+                            tbody.appendChild(row);
+                        }
+                    }
+                    table.appendChild(tbody);
+                });
+        });
+    </script>
 </body>
 </html> 
