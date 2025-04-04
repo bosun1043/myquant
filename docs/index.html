@@ -394,7 +394,7 @@
             });
 
             // Load correlation summary data
-            fetch('data/correlation_summary.csv')
+            fetch('data/correlation/correlation_summary.csv')
                 .then(response => response.text())
                 .then(data => {
                     const rows = data.split('\n');
