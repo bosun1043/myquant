@@ -71,7 +71,7 @@ education_analysis/
 
 ## 작성자 (Author)
 
-- Jessica Kang
+- Dayoung Lee
 
 ## 라이선스 (License)
 
@@ -94,13 +94,6 @@ A web-based platform for stock analysis and visualization, featuring interactive
 
 Visit the live demo at: https://bosun1043.github.io/myquant
 
-## Technologies Used
-
-- HTML5/CSS3
-- JavaScript (ES6+)
-- Plotly.js for charts
-- Bootstrap 5 for UI
-- Yahoo Finance API for stock data
 
 ## Local Development
 
