@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털 학습 자원과 수학 성취도 분석</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">디지털 학습 자원 분석 대시보드</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-section="overview">개요</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="digital-resources">디지털 자원</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="achievement">학업 성취도</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="correlation">상관관계 분석</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-section="policy">정책 효과</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- 검색 섹션 -->
+        <div class="search-section mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" id="schoolSearch" class="form-control" placeholder="학교명 또는 학교코드로 검색">
+                        <button class="btn btn-primary" type="button" id="searchButton">검색</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select id="regionFilter" class="form-select">
+                        <option value="">전체 지역</option>
+                        <option value="서울">서울</option>
+                        <option value="부산">부산</option>
+                        <option value="대구">대구</option>
+                        <option value="인천">인천</option>
+                        <option value="광주">광주</option>
+                        <option value="대전">대전</option>
+                        <option value="울산">울산</option>
+                        <option value="세종">세종</option>
+                        <option value="경기">경기</option>
+                        <option value="강원">강원</option>
+                        <option value="충북">충북</option>
+                        <option value="충남">충남</option>
+                        <option value="전북">전북</option>
+                        <option value="전남">전남</option>
+                        <option value="경북">경북</option>
+                        <option value="경남">경남</option>
+                        <option value="제주">제주</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select id="yearFilter" class="form-select">
+                        <option value="">전체 연도</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 개요 섹션 -->
+        <div id="overview" class="dashboard-section">
+            <h2>연구 개요</h2>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class='bx bx-building'></i>
+                        <h3 id="totalSchools">-</h3>
+                        <p>분석 대상 학교 수</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class='bx bx-user'></i>
+                        <h3 id="totalStudents">-</h3>
+                        <p>분석 대상 학생 수</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class='bx bx-laptop'></i>
+                        <h3 id="avgDigitalScore">-</h3>
+                        <p>평균 디지털 접근성 지수</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class='bx bx-line-chart'></i>
+                        <h3 id="avgMathScore">-</h3>
+                        <p>평균 수학 성취도</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">지역별 디지털 접근성 분포</h5>
+                            <div id="regionDigitalChart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">지역별 수학 성취도 분포</h5>
+                            <div id="regionMathChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 디지털 자원 섹션 -->
+        <div id="digital-resources" class="dashboard-section" style="display: none;">
+            <h2>디지털 학습 자원 현황</h2>
+            
+            <!-- Button Group for Visualization Control -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary active" data-visualization="trend">변화 추이</button>
+                        <button type="button" class="btn btn-primary" data-visualization="infra">인프라 구성</button>
+                        <button type="button" class="btn btn-primary" data-visualization="usage">자원 활용도</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Visualization -->
+            <div class="row visualization-section" id="trend-visualization">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">디지털 자원 변화 추이 (2021-2023)</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>연도</th>
+                                            <th>전체 컴퓨터 수</th>
+                                            <th>학생용 컴퓨터 비율 (%)</th>
+                                            <th>교사용 컴퓨터 비율 (%)</th>
+                                            <th>직원용 컴퓨터 비율 (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trend-data">
+                                        <!-- Data will be populated by JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4">
+                                <img src="/static/data/digital_resources/digital_resources_trend.png" alt="디지털 자원 변화 추이" class="img-fluid">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infrastructure Visualization -->
+            <div class="row visualization-section" id="infra-visualization" style="display: none;">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">디지털 인프라 구성</h5>
+                            <div id="digitalInfraChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Usage Visualization -->
+            <div class="row visualization-section" id="usage-visualization" style="display: none;">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">디지털 자원 활용도</h5>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary active" data-usage="trend">추이</button>
+                                <button type="button" class="btn btn-outline-primary" data-usage="region">지역별 현황</button>
+                            </div>
+                            <div id="usage-trend" class="usage-section">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>연도</th>
+                                                <th>전체 컴퓨터</th>
+                                                <th>학생용 컴퓨터</th>
+                                                <th>교사용 컴퓨터</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="trend-data">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-4">
+                                    <img src="/static/data/digital_resources/digital_resources_trend.png" alt="디지털 자원 변화 추이" class="img-fluid">
+                                </div>
+                            </div>
+                            <div id="usage-region" class="usage-section" style="display: none;">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>지역</th>
+                                                <th>전체 노트북</th>
+                                                <th>학생용 노트북</th>
+                                                <th>학생용 비율</th>
+                                                <th>교사용 노트북</th>
+                                                <th>교사용 비율</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="region-data">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="mt-4">
+                                    <img src="/static/data/digital_resources/region_laptop_distribution.png" alt="지역별 노트북 활용 현황" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 학업 성취도 섹션 -->
+        <div id="achievement" class="dashboard-section" style="display: none;">
+            <h2>수학 성취도 분석</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">성취도 분포</h5>
+                            <div id="achievementDistChart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">연도별 추이</h5>
+                            <div id="achievementTrendChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상관관계 분석 섹션 -->
+        <div id="correlation" class="dashboard-section" style="display: none;">
+            <h2>디지털 자원과 성취도 상관관계</h2>
+            
+            <!-- Button Group for Correlation Analysis -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary active" data-correlation="visualization">상관관계 시각화</button>
+                        <button type="button" class="btn btn-primary" data-correlation="summary">상관관계 요약</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Visualization -->
+            <div class="row correlation-section" id="visualization-section">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">디지털 자원과 학교 운영률의 상관관계</h5>
+                            <img src="/static/data/correlation/correlation_analysis.png" alt="상관관계 분석" class="img-fluid">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Summary -->
+            <div class="row correlation-section" id="summary-section" style="display: none;">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">상관관계 분석 요약</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="correlation-summary">
+                                    <!-- Data will be populated by JavaScript -->
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 정책 효과 섹션 -->
+        <div id="policy" class="dashboard-section" style="display: none;">
+            <h2>정책 효과 분석</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">정책 시행 전후 비교</h5>
+                            <div id="policyEffectChart"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">지역별 정책 효과</h5>
+                            <div id="policyRegionChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .visualization-section {
+            margin-bottom: 2rem;
+        }
+        .btn-group {
+            margin-bottom: 1rem;
+        }
+        .table-responsive {
+            margin-bottom: 1rem;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            border-radius: 8px;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        .card-title {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/app.js"></script>
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle navigation clicks
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetSection = this.getAttribute('data-section');
+                    
+                    // Hide all sections
+                    document.querySelectorAll('.dashboard-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show target section
+                    document.getElementById(targetSection).style.display = 'block';
+                    
+                    // Update active nav link
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Show overview section by default
+            document.getElementById('overview').style.display = 'block';
+            document.querySelector('[data-section="overview"]').classList.add('active');
+
+            // Visualization button handlers
+            const buttons = document.querySelectorAll('[data-visualization]');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all visualizations
+                    document.querySelectorAll('.visualization-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected visualization
+                    const visualization = this.dataset.visualization;
+                    document.getElementById(`${visualization}-visualization`).style.display = 'block';
+                });
+            });
+
+            // Usage button handlers
+            const usageButtons = document.querySelectorAll('[data-usage]');
+            usageButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    usageButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all usage sections
+                    document.querySelectorAll('.usage-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected section
+                    const usage = this.dataset.usage;
+                    document.getElementById(`usage-${usage}`).style.display = 'block';
+                });
+            });
+
+            // Load trend data from CSV
+            fetch('/static/data/digital_resources/digital_resources_summary.csv')
+                .then(response => response.text())
+                .then(data => {
+                    const rows = data.split('\n');
+                    const tbody = document.getElementById('trend-data');
+                    
+                    // Skip header row
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].split(',');
+                        if (cells.length > 1) {
+                            const row = document.createElement('tr');
+                            cells.forEach(cell => {
+                                const td = document.createElement('td');
+                                td.textContent = cell;
+                                row.appendChild(td);
+                            });
+                            tbody.appendChild(row);
+                        }
+                    }
+                });
+
+            // Load region laptop data
+            fetch('/static/data/digital_resources/region_laptop_summary.csv')
+                .then(response => response.text())
+                .then(data => {
+                    const decoder = new TextDecoder('utf-8');
+                    const rows = data.split('\n');
+                    const tbody = document.getElementById('region-data');
+                    tbody.innerHTML = ''; // Clear existing content
+                    
+                    // Skip header row
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].split(',');
+                        if (cells.length > 1) {
+                            const row = document.createElement('tr');
+                            cells.forEach(cell => {
+                                const td = document.createElement('td');
+                                // Format numbers with commas and percentage signs
+                                if (!isNaN(cell) && cell.includes('.')) {
+                                    td.textContent = parseFloat(cell).toFixed(1) + '%';
+                                } else if (!isNaN(cell)) {
+                                    td.textContent = parseInt(cell).toLocaleString('ko-KR');
+                                } else {
+                                    td.textContent = cell;
+                                }
+                                row.appendChild(td);
+                            });
+                            tbody.appendChild(row);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading region laptop data:', error);
+                });
+
+            // Correlation button handlers
+            const correlationButtons = document.querySelectorAll('[data-correlation]');
+            correlationButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    correlationButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all correlation sections
+                    document.querySelectorAll('.correlation-section').forEach(section => {
+                        section.style.display = 'none';
+                    });
+                    
+                    // Show selected section
+                    const correlation = this.dataset.correlation;
+                    document.getElementById(`${correlation}-section`).style.display = 'block';
+                });
+            });
+
+            // Load correlation summary data
+            fetch('/static/data/correlation/correlation_summary.csv')
+                .then(response => response.text())
+                .then(data => {
+                    const decoder = new TextDecoder('utf-8');
+                    const rows = data.split('\n');
+                    const table = document.getElementById('correlation-summary');
+                    table.innerHTML = ''; // Clear existing content
+                    
+                    // Create header row
+                    const thead = document.createElement('thead');
+                    const headerRow = document.createElement('tr');
+                    rows[0].split(',').forEach(header => {
+                        const th = document.createElement('th');
+                        th.textContent = header;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    // Create body
+                    const tbody = document.createElement('tbody');
+                    for (let i = 1; i < rows.length; i++) {
+                        const cells = rows[i].split(',');
+                        if (cells.length > 1) {
+                            const row = document.createElement('tr');
+                            cells.forEach(cell => {
+                                const td = document.createElement('td');
+                                // Format numbers with commas and percentage signs
+                                if (!isNaN(cell) && cell.includes('.')) {
+                                    td.textContent = parseFloat(cell).toFixed(1) + '%';
+                                } else if (!isNaN(cell)) {
+                                    td.textContent = parseInt(cell).toLocaleString('ko-KR');
+                                } else {
+                                    td.textContent = cell;
+                                }
+                                row.appendChild(td);
+                            });
+                            tbody.appendChild(row);
+                        }
+                    }
+                    table.appendChild(tbody);
+                })
+                .catch(error => {
+                    console.error('Error loading correlation summary data:', error);
+                });
+        });
+    </script>
+</body>
+</html> 
