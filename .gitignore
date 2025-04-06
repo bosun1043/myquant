@@ -1,3 +1,6 @@
+# Environment variables
+.env
+
 # Python
 __pycache__/
 *.py[cod]
@@ -23,24 +26,21 @@ wheels/
 # Virtual Environment
 venv/
 ENV/
-env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-<<<<<<< HEAD
+
+# OS
 .DS_Store
-
-# Project specific
-*.log
-.env
-.env.* 
-=======
-
-# Environment variables
-.env
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Logs
 *.log
@@ -51,5 +51,4 @@ env/
 
 # Local development
 instance/
-.webassets-cache 
->>>>>>> origin/main
+.webassets-cache

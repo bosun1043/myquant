@@ -32,6 +32,9 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="policy-tab" data-bs-toggle="tab" data-bs-target="#policy" type="button" role="tab">정책 효과</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="ai-chat-tab" data-bs-toggle="tab" data-bs-target="#ai-chat" type="button" role="tab">AI 채팅</button>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -335,6 +338,31 @@
                             <div class="card-body">
                                 <h5 class="card-title">지역별 정책 효과</h5>
                                 <div id="policyRegionChart"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Chat Section -->
+            <div class="tab-pane fade" id="ai-chat" role="tabpanel" aria-labelledby="ai-chat-tab">
+                <div class="container mt-4">
+                    <h2 class="text-center mb-4">AI 분석 도우미</h2>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="chat-messages" id="chat-messages">
+                                        <!-- Messages will be added here -->
+                                    </div>
+                                    <div class="chat-input mt-3">
+                                        <div class="input-group">
+                                            <input type="text" id="chat-input" class="form-control" placeholder="질문을 입력하세요...">
+                                            <button class="btn btn-primary" id="send-message">전송</button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

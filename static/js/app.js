@@ -178,4 +178,89 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Chat functionality
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-message');
+
+    function addMessage(message, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${isUser ? 'user-message' : 'assistant-message'}`;
+        
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.textContent = message;
+        
+        const messageTime = document.createElement('div');
+        messageTime.className = 'message-time';
+        messageTime.textContent = new Date().toLocaleTimeString();
+        
+        messageDiv.appendChild(messageContent);
+        messageDiv.appendChild(messageTime);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addLoadingAnimation() {
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'chat-message assistant-message';
+        loadingDiv.innerHTML = `
+            <div class="loading">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+        chatMessages.appendChild(loadingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        return loadingDiv;
+    }
+
+    async function sendMessage() {
+        const message = chatInput.value.trim();
+        if (!message) return;
+
+        // Add user message
+        addMessage(message, true);
+        chatInput.value = '';
+
+        // Add loading animation
+        const loadingDiv = addLoadingAnimation();
+
+        try {
+            const response = await fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            const data = await response.json();
+            
+            // Remove loading animation
+            loadingDiv.remove();
+
+            if (data.status === 'success') {
+                addMessage(data.response);
+            } else {
+                addMessage('죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            loadingDiv.remove();
+            addMessage('죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.');
+        }
+    }
+
+    // Event listeners
+    sendButton.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
 });
