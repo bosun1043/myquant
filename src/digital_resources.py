@@ -1,59 +1,87 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
+import platform
 
-# Read the CSV file
-df = pd.read_csv('../data/tech_region.csv')
+# 운영체제별 한글 폰트 설정
+if platform.system() == 'Darwin':  # macOS
+    plt.rc('font', family='AppleGothic')
+elif platform.system() == 'Windows':  # Windows
+    plt.rc('font', family='Malgun Gothic')
+else:  # Linux
+    plt.rc('font', family='NanumGothic')
+    
+plt.rcParams['axes.unicode_minus'] = False  # 마이너스 기호 깨짐 방지
 
-# Set the style
-plt.style.use('seaborn')
-sns.set_palette("husl")
+def create_digital_resources_trend():
+    # 데이터 로드
+    df = pd.read_csv('../data/tech_region.csv')
+    
+    # 연도별 평균 계산
+    yearly_avg = df.groupby('연도').agg({
+        '전체_대': 'sum',
+        '학생용_퍼센트': 'mean',
+        '교사용_퍼센트': 'mean'
+    }).reset_index()
+    
+    # 시각화
+    plt.figure(figsize=(12, 6))
+    
+    # 전체 컴퓨터 수 추이
+    plt.subplot(1, 2, 1)
+    plt.plot(yearly_avg['연도'], yearly_avg['전체_대'], marker='o')
+    plt.title('연도별 전체 컴퓨터 수 변화', pad=20)
+    plt.xlabel('연도')
+    plt.ylabel('전체 컴퓨터 수')
+    
+    # 용도별 비율 추이
+    plt.subplot(1, 2, 2)
+    plt.plot(yearly_avg['연도'], yearly_avg['학생용_퍼센트'], marker='o', label='학생용')
+    plt.plot(yearly_avg['연도'], yearly_avg['교사용_퍼센트'], marker='s', label='교사용')
+    plt.title('연도별 용도별 컴퓨터 비율 변화', pad=20)
+    plt.xlabel('연도')
+    plt.ylabel('비율 (%)')
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig('../static/data/digital_resources/digital_resources_trend.png', dpi=300, bbox_inches='tight')
+    plt.close()
 
-# Create a figure with subplots
-fig, axes = plt.subplots(2, 2, figsize=(15, 12))
-fig.suptitle('디지털 자원 변화 추이 (2021-2023)', fontsize=16)
+def create_regional_distribution():
+    # 데이터 로드
+    df = pd.read_csv('../data/tech_region.csv')
+    
+    # 2023년 데이터 필터링
+    df_2023 = df[df['연도'] == 2023]
+    
+    # 지역별 데이터 준비
+    regional_data = df_2023.groupby('구분').agg({
+        '전체_대': 'sum',
+        '학생용_대': 'sum',
+        '교사용_대': 'sum'
+    }).reset_index()
+    
+    # 시각화
+    plt.figure(figsize=(12, 6))
+    
+    # 막대 그래프 생성
+    x = np.arange(len(regional_data['구분']))
+    width = 0.35
+    
+    plt.bar(x - width/2, regional_data['학생용_대'], width, label='학생용')
+    plt.bar(x + width/2, regional_data['교사용_대'], width, label='교사용')
+    
+    plt.title('지역별 컴퓨터 보유 현황 (2023년)', pad=20)
+    plt.xlabel('지역')
+    plt.ylabel('컴퓨터 수')
+    plt.xticks(x, regional_data['구분'], rotation=45)
+    plt.legend()
+    
+    plt.tight_layout()
+    plt.savefig('../static/data/digital_resources/region_laptop_distribution.png', dpi=300, bbox_inches='tight')
+    plt.close()
 
-# 1. Total Computers Trend
-total_computers = df.groupby('연도')['전체_대'].sum()
-axes[0, 0].plot(total_computers.index, total_computers.values, marker='o')
-axes[0, 0].set_title('전체 컴퓨터 수 변화')
-axes[0, 0].set_xlabel('연도')
-axes[0, 0].set_ylabel('대수')
-
-# 2. Student Computers Percentage Trend
-student_pct = df.groupby('연도')['학생용_퍼센트'].mean()
-axes[0, 1].plot(student_pct.index, student_pct.values, marker='o', color='green')
-axes[0, 1].set_title('학생용 컴퓨터 비율 변화')
-axes[0, 1].set_xlabel('연도')
-axes[0, 1].set_ylabel('비율 (%)')
-
-# 3. Teacher Computers Percentage Trend
-teacher_pct = df.groupby('연도')['교사용_퍼센트'].mean()
-axes[1, 0].plot(teacher_pct.index, teacher_pct.values, marker='o', color='red')
-axes[1, 0].set_title('교사용 컴퓨터 비율 변화')
-axes[1, 0].set_xlabel('연도')
-axes[1, 0].set_ylabel('비율 (%)')
-
-# 4. Staff Computers Percentage Trend
-staff_pct = df.groupby('연도')['직원용_퍼센트'].mean()
-axes[1, 1].plot(staff_pct.index, staff_pct.values, marker='o', color='purple')
-axes[1, 1].set_title('직원용 컴퓨터 비율 변화')
-axes[1, 1].set_xlabel('연도')
-axes[1, 1].set_ylabel('비율 (%)')
-
-# Adjust layout and save
-plt.tight_layout()
-plt.savefig('../static/digital_resources_trend.png')
-plt.close()
-
-# Create a summary table
-summary = pd.DataFrame({
-    '연도': [2021, 2022, 2023],
-    '전체 컴퓨터 수': total_computers.values,
-    '학생용 컴퓨터 비율 (%)': student_pct.values,
-    '교사용 컴퓨터 비율 (%)': teacher_pct.values,
-    '직원용 컴퓨터 비율 (%)': staff_pct.values
-})
-
-# Save summary to CSV
-summary.to_csv('../data/digital_resources_summary.csv', index=False, encoding='utf-8-sig') 
+if __name__ == '__main__':
+    create_digital_resources_trend()
+    create_regional_distribution() 
