@@ -9,26 +9,174 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     })
 
-    // Handle visualization button clicks in digital resources section
-    const visualizationButtons = document.querySelectorAll('[data-visualization]');
+    // Overview visualization buttons
+    const overviewButtons = document.querySelectorAll('[data-visualization]');
     const visualizationSections = document.querySelectorAll('.visualization-section');
 
-    visualizationButtons.forEach(button => {
-        button.addEventListener('click', () => {
+    overviewButtons.forEach(button => {
+        button.addEventListener('click', function() {
             // Remove active class from all buttons
-            visualizationButtons.forEach(btn => btn.classList.remove('active'));
+            overviewButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
             // Add active class to clicked button
-            button.classList.add('active');
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('active', 'btn-primary');
 
+            const selectedVisualization = this.getAttribute('data-visualization');
+            
             // Hide all visualization sections
-            visualizationSections.forEach(section => section.style.display = 'none');
+            visualizationSections.forEach(section => {
+                section.style.display = 'none';
+            });
+            
             // Show selected visualization section
-            const targetSection = document.getElementById(`${button.dataset.visualization}-visualization`);
+            const targetSection = document.getElementById(`${selectedVisualization}-visualization`);
             if (targetSection) {
                 targetSection.style.display = 'block';
             }
+
+            // Load data for the selected visualization
+            loadVisualizationData(selectedVisualization);
         });
     });
+
+    // Function to load data for each visualization
+    function loadVisualizationData(visualizationType) {
+        fetch('/static/data/total_region.csv')
+            .then(response => response.text())
+            .then(data => {
+                const rows = data.split('\n');
+                const headers = rows[0].split(',');
+                const dataRows = rows.slice(1).map(row => row.split(','));
+
+                switch (visualizationType) {
+                    case 'purpose':
+                        loadPurposeData(dataRows, headers);
+                        break;
+                    case 'region':
+                        loadRegionData(dataRows, headers);
+                        break;
+                    case 'school-type':
+                        loadSchoolTypeData(dataRows, headers);
+                        break;
+                    case 'school-computers':
+                        loadSchoolComputersData(dataRows, headers);
+                        break;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading data:', error);
+            });
+    }
+
+    function loadPurposeData(dataRows, headers) {
+        const tbody = document.getElementById('purpose-data');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        const purposes = ['학생용', '교사용', '직원용', '기타'];
+        const total = purposes.reduce((sum, purpose) => {
+            const index = headers.indexOf(purpose);
+            const value = parseFloat(dataRows[0][index]) || 0;
+            return sum + value;
+        }, 0);
+
+        purposes.forEach(purpose => {
+            const index = headers.indexOf(purpose);
+            const value = parseFloat(dataRows[0][index]) || 0;
+            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${purpose}</td>
+                <td>${value.toFixed(1)}</td>
+                <td>${percentage}%</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function loadRegionData(dataRows, headers) {
+        const tbody = document.getElementById('region-data');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        const total = dataRows.reduce((sum, row) => {
+            const value = parseFloat(row[headers.indexOf('전체')]) || 0;
+            return sum + value;
+        }, 0);
+
+        dataRows.forEach(row => {
+            const region = row[headers.indexOf('구분')];
+            const computers = parseFloat(row[headers.indexOf('전체')]) || 0;
+            const percentage = total > 0 ? ((computers / total) * 100).toFixed(1) : '0.0';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${region}</td>
+                <td>${computers.toFixed(1)}</td>
+                <td>${percentage}%</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function loadSchoolTypeData(dataRows, headers) {
+        const tbody = document.getElementById('school-type-data');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        const totalSchools = dataRows.reduce((sum, row) => {
+            const value = parseInt(row[headers.indexOf('학교 수')]) || 0;
+            return sum + value;
+        }, 0);
+
+        dataRows.forEach(row => {
+            const schoolType = row[headers.indexOf('구분')];
+            const schoolCount = parseInt(row[headers.indexOf('학교 수')]) || 0;
+            const percentage = totalSchools > 0 ? ((schoolCount / totalSchools) * 100).toFixed(1) : '0.0';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${schoolType}</td>
+                <td>${schoolCount.toLocaleString()}</td>
+                <td>${percentage}%</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function loadSchoolComputersData(dataRows, headers) {
+        const tbody = document.getElementById('school-computers-data');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        dataRows.forEach(row => {
+            const schoolType = row[headers.indexOf('구분')];
+            const total = parseFloat(row[headers.indexOf('전체')]) || 0;
+            const student = parseFloat(row[headers.indexOf('학생용')]) || 0;
+            const teacher = parseFloat(row[headers.indexOf('교사용')]) || 0;
+            const staff = parseFloat(row[headers.indexOf('직원용')]) || 0;
+            const other = parseFloat(row[headers.indexOf('기타')]) || 0;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${schoolType}</td>
+                <td>${total.toFixed(1)}</td>
+                <td>${student.toFixed(1)}</td>
+                <td>${teacher.toFixed(1)}</td>
+                <td>${staff.toFixed(1)}</td>
+                <td>${other.toFixed(1)}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // Load initial data
+    loadVisualizationData('purpose');
 
     // Handle correlation button clicks
     const correlationButtons = document.querySelectorAll('[data-correlation]');
@@ -262,5 +410,43 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             sendMessage();
         }
+    });
+
+    // School level filter functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const visualizations = document.querySelectorAll('.visualization img');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
+            // Add active class to clicked button
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('active', 'btn-primary');
+
+            const selectedSchool = this.getAttribute('data-school');
+            console.log('Selected school:', selectedSchool);
+            
+            // Update image sources based on selected school
+            visualizations.forEach(img => {
+                const currentSrc = img.getAttribute('src');
+                const basePath = currentSrc.substring(0, currentSrc.lastIndexOf('/') + 1);
+                const fileName = currentSrc.substring(currentSrc.lastIndexOf('/') + 1);
+                
+                if (selectedSchool === 'all') {
+                    // Reset to original images
+                    img.src = currentSrc;
+                } else {
+                    // Update to filtered images
+                    const newFileName = fileName.replace('.png', `_${selectedSchool}.png`);
+                    img.src = basePath + newFileName;
+                    console.log(`Loading image: ${basePath + newFileName}`); // Debug log
+                }
+            });
+        });
     });
 });
