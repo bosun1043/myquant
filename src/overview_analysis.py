@@ -21,13 +21,22 @@ def create_overview_visualizations():
     # Create visualization directory if it doesn't exist
     os.makedirs('../static/data/overview', exist_ok=True)
     
-    # Create visualizations for all data
-    create_visualizations(df, '')
+    # Separate data into school types and regions
+    school_types = ['초등학교', '중학교', '고등학교', '특수학교']
+    regions = ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주']
     
     # Create visualizations for school types
-    school_types = ['초등학교', '중학교', '특수학교']
+    school_data = df[df['구분'].isin(school_types)]
+    if not school_data.empty:
+        create_visualizations(school_data, '_school_types')
+    
+    # Create visualizations for regions
+    region_data = df[df['구분'].isin(regions)]
+    if not region_data.empty:
+        create_visualizations(region_data, '_regions')
+    
+    # Create visualizations for each school type
     for school_type in school_types:
-        # Filter data by school type
         filtered_df = df[df['구분'] == school_type]
         print(f"\nCreating visualizations for {school_type}")
         print(f"Filtered data shape: {filtered_df.shape}")
@@ -37,51 +46,80 @@ def create_overview_visualizations():
         if not filtered_df.empty:
             create_visualizations(filtered_df, f'_{school_type}')
 
-def create_visualizations(df, suffix):
-    # Computer purpose distribution (전국 평균)
-    computer_purposes = ['학생용', '교사용', '직원용', '기타']
-    purpose_values = df[computer_purposes].sum()
+def create_visualizations(data, suffix=''):
+    # Create directory if it doesn't exist
+    os.makedirs('../static/data/overview', exist_ok=True)
+    
+    # Computer purpose distribution
     plt.figure(figsize=(10, 6))
-    plt.pie(purpose_values, labels=computer_purposes, autopct='%1.1f%%', startangle=90)
-    plt.title(f'컴퓨터 용도별 분포{suffix.replace("_", " ")}')
-    plt.axis('equal')
+    purposes = ['학생용', '교사용', '직원용', '기타']
+    values = [data[purpose].iloc[0] for purpose in purposes]
+    
+    # Sort purposes and values in ascending order
+    sorted_data = sorted(zip(purposes, values), key=lambda x: x[1])
+    sorted_purposes, sorted_values = zip(*sorted_data)
+    
+    plt.bar(sorted_purposes, sorted_values)
+    plt.title(f'컴퓨터 용도별 분포{suffix}')
+    plt.xlabel('용도')
+    plt.ylabel('대수')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
     plt.savefig(f'../static/data/overview/computer_purpose_distribution{suffix}.png')
     plt.close()
-
-    # School type distribution
-    school_counts = df['구분'].value_counts()
-    plt.figure(figsize=(10, 6))
-    if not school_counts.empty:
-        plt.pie(school_counts, labels=school_counts.index, autopct='%1.1f%%', startangle=90)
-        plt.title(f'학교 유형별 분포{suffix.replace("_", " ")}')
-        plt.axis('equal')
-        plt.savefig(f'../static/data/overview/school_type_distribution{suffix}.png')
-    plt.close()
-
-    # Regional distribution (top 10)
-    region_computers = df.groupby('구분')['전체'].sum().sort_values(ascending=False)
+    
+    # Regional distribution
     plt.figure(figsize=(12, 6))
-    if not region_computers.empty:
-        region_computers.head(10).plot(kind='bar')
-        plt.title(f'지역별 컴퓨터 보유 현황 (Top 10){suffix.replace("_", " ")}')
-        plt.xlabel('지역')
-        plt.ylabel('컴퓨터 수')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.savefig(f'../static/data/overview/regional_distribution{suffix}.png')
+    regions = data['구분']
+    computers = data['전체']
+    
+    # Sort regions and computers in ascending order
+    sorted_data = sorted(zip(regions, computers), key=lambda x: x[1])
+    sorted_regions, sorted_computers = zip(*sorted_data)
+    
+    plt.bar(sorted_regions, sorted_computers)
+    plt.title(f'지역별 컴퓨터 보유 현황{suffix}')
+    plt.xlabel('지역')
+    plt.ylabel('컴퓨터 대수')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig(f'../static/data/overview/regional_distribution{suffix}.png')
     plt.close()
-
-    # Computer distribution by school type
-    school_computers = df.groupby('구분')['전체'].mean()
+    
+    # School type distribution
     plt.figure(figsize=(10, 6))
-    if not school_computers.empty:
-        school_computers.plot(kind='bar')
-        plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix.replace("_", " ")}')
-        plt.xlabel('학교 유형')
-        plt.ylabel('평균 컴퓨터 수')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.savefig(f'../static/data/overview/school_type_computers{suffix}.png')
+    school_types = data['구분']
+    school_counts = data['학교 수']
+    
+    # Sort school types and counts in ascending order
+    sorted_data = sorted(zip(school_types, school_counts), key=lambda x: x[1])
+    sorted_school_types, sorted_school_counts = zip(*sorted_data)
+    
+    plt.bar(sorted_school_types, sorted_school_counts)
+    plt.title(f'학교 유형별 분포{suffix}')
+    plt.xlabel('학교 유형')
+    plt.ylabel('학교 수')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig(f'../static/data/overview/school_type_distribution{suffix}.png')
+    plt.close()
+    
+    # Average computer ownership by school type
+    plt.figure(figsize=(12, 6))
+    school_types = data['구분']
+    avg_computers = data['전체'] / data['학교 수']
+    
+    # Sort school types and average computers in ascending order
+    sorted_data = sorted(zip(school_types, avg_computers), key=lambda x: x[1])
+    sorted_school_types, sorted_avg_computers = zip(*sorted_data)
+    
+    plt.bar(sorted_school_types, sorted_avg_computers)
+    plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix}')
+    plt.xlabel('학교 유형')
+    plt.ylabel('평균 컴퓨터 대수')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig(f'../static/data/overview/school_type_computers{suffix}.png')
     plt.close()
 
 if __name__ == '__main__':

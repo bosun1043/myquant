@@ -48,9 +48,15 @@ document.addEventListener('DOMContentLoaded', function() {
         fetch('/static/data/total_region.csv')
             .then(response => response.text())
             .then(data => {
-                const rows = data.split('\n');
-                const headers = rows[0].split(',');
-                const dataRows = rows.slice(1).map(row => row.split(','));
+                // Split the CSV data into rows and clean up
+                const rows = data.split('\n').filter(row => row.trim() !== '');
+                const headers = rows[0].split(',').map(header => header.trim());
+                const dataRows = rows.slice(1).map(row => {
+                    return row.split(',').map(cell => cell.trim());
+                });
+
+                console.log('Headers:', headers); // Debug log
+                console.log('Data rows:', dataRows); // Debug log
 
                 switch (visualizationType) {
                     case 'purpose':
@@ -78,15 +84,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tbody.innerHTML = '';
         const purposes = ['학생용', '교사용', '직원용', '기타'];
+        
+        // Get the first row of data (total data)
+        const totalRow = dataRows[0];
         const total = purposes.reduce((sum, purpose) => {
             const index = headers.indexOf(purpose);
-            const value = parseFloat(dataRows[0][index]) || 0;
+            const value = parseFloat(totalRow[index]) || 0;
             return sum + value;
         }, 0);
 
         purposes.forEach(purpose => {
             const index = headers.indexOf(purpose);
-            const value = parseFloat(dataRows[0][index]) || 0;
+            const value = parseFloat(totalRow[index]) || 0;
             const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
 
             const row = document.createElement('tr');
@@ -105,13 +114,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tbody.innerHTML = '';
         const total = dataRows.reduce((sum, row) => {
-            const value = parseFloat(row[headers.indexOf('전체')]) || 0;
+            const index = headers.indexOf('전체');
+            const value = parseFloat(row[index]) || 0;
             return sum + value;
         }, 0);
 
         dataRows.forEach(row => {
-            const region = row[headers.indexOf('구분')];
-            const computers = parseFloat(row[headers.indexOf('전체')]) || 0;
+            const regionIndex = headers.indexOf('구분');
+            const totalIndex = headers.indexOf('전체');
+            
+            const region = row[regionIndex];
+            const computers = parseFloat(row[totalIndex]) || 0;
             const percentage = total > 0 ? ((computers / total) * 100).toFixed(1) : '0.0';
 
             const tr = document.createElement('tr');
@@ -130,13 +143,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tbody.innerHTML = '';
         const totalSchools = dataRows.reduce((sum, row) => {
-            const value = parseInt(row[headers.indexOf('학교 수')]) || 0;
+            const index = headers.indexOf('학교 수');
+            const value = parseInt(row[index]) || 0;
             return sum + value;
         }, 0);
 
         dataRows.forEach(row => {
-            const schoolType = row[headers.indexOf('구분')];
-            const schoolCount = parseInt(row[headers.indexOf('학교 수')]) || 0;
+            const typeIndex = headers.indexOf('구분');
+            const countIndex = headers.indexOf('학교 수');
+            
+            const schoolType = row[typeIndex];
+            const schoolCount = parseInt(row[countIndex]) || 0;
             const percentage = totalSchools > 0 ? ((schoolCount / totalSchools) * 100).toFixed(1) : '0.0';
 
             const tr = document.createElement('tr');
@@ -155,12 +172,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tbody.innerHTML = '';
         dataRows.forEach(row => {
-            const schoolType = row[headers.indexOf('구분')];
-            const total = parseFloat(row[headers.indexOf('전체')]) || 0;
-            const student = parseFloat(row[headers.indexOf('학생용')]) || 0;
-            const teacher = parseFloat(row[headers.indexOf('교사용')]) || 0;
-            const staff = parseFloat(row[headers.indexOf('직원용')]) || 0;
-            const other = parseFloat(row[headers.indexOf('기타')]) || 0;
+            const typeIndex = headers.indexOf('구분');
+            const totalIndex = headers.indexOf('전체');
+            const studentIndex = headers.indexOf('학생용');
+            const teacherIndex = headers.indexOf('교사용');
+            const staffIndex = headers.indexOf('직원용');
+            const otherIndex = headers.indexOf('기타');
+
+            const schoolType = row[typeIndex];
+            const total = parseFloat(row[totalIndex]) || 0;
+            const student = parseFloat(row[studentIndex]) || 0;
+            const teacher = parseFloat(row[teacherIndex]) || 0;
+            const staff = parseFloat(row[staffIndex]) || 0;
+            const other = parseFloat(row[otherIndex]) || 0;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
