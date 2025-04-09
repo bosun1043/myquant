@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to load data for each visualization
     function loadVisualizationData(visualizationType) {
-        fetch('/static/data/total_region.csv')
+        fetch('/data/total_region.csv')
             .then(response => response.text())
             .then(data => {
                 // Split the CSV data into rows and clean up
@@ -172,21 +172,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tbody.innerHTML = '';
         dataRows.forEach(row => {
-            const typeIndex = headers.indexOf('구분');
-            const totalIndex = headers.indexOf('전체');
-            const studentIndex = headers.indexOf('학생용');
-            const teacherIndex = headers.indexOf('교사용');
-            const staffIndex = headers.indexOf('직원용');
-            const otherIndex = headers.indexOf('기타');
-
-            const schoolType = row[typeIndex];
-            const total = parseFloat(row[totalIndex]) || 0;
-            const student = parseFloat(row[studentIndex]) || 0;
-            const teacher = parseFloat(row[teacherIndex]) || 0;
-            const staff = parseFloat(row[staffIndex]) || 0;
-            const other = parseFloat(row[otherIndex]) || 0;
+            const schoolType = row[headers.indexOf('구분')];
+            const total = parseFloat(row[headers.indexOf('전체')]) || 0;
+            const student = parseFloat(row[headers.indexOf('학생용')]) || 0;
+            const teacher = parseFloat(row[headers.indexOf('교사용')]) || 0;
+            const staff = parseFloat(row[headers.indexOf('직원용')]) || 0;
+            const other = parseFloat(row[headers.indexOf('기타')]) || 0;
 
             const tr = document.createElement('tr');
+
+            // Ensure exactly 6 <td> elements are created first
             tr.innerHTML = `
                 <td>${schoolType}</td>
                 <td>${total.toFixed(1)}</td>
@@ -195,6 +190,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${staff.toFixed(1)}</td>
                 <td>${other.toFixed(1)}</td>
             `;
+
+            // Apply distinction line style to all cells in the row if condition met
+            if (index > 0 && schoolType === '서울특별시' && dataRows[index-1][schoolTypeIndex] === '특수학교') {
+                const cells = tr.querySelectorAll('td'); // Get all <td> elements in this row
+                cells.forEach(cell => {
+                    cell.style.borderTop = '2px solid #ff6b6b'; // Apply border directly to each cell
+                });
+             }
+
+            // Log the generated HTML for '서울특별시'
+            if (schoolType === '서울특별시') {
+                console.log('  Generated HTML:', tr.innerHTML);
+            }
+            
             tbody.appendChild(tr);
         });
     }

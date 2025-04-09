@@ -4,6 +4,7 @@ import seaborn as sns
 import numpy as np
 import platform
 import os
+import matplotlib.cm as cm # Import colormap module
 
 # Set font for Korean text
 if platform.system() == 'Darwin':  # macOS
@@ -59,7 +60,10 @@ def create_visualizations(data, suffix=''):
     sorted_data = sorted(zip(purposes, values), key=lambda x: x[1])
     sorted_purposes, sorted_values = zip(*sorted_data)
     
-    plt.bar(sorted_purposes, sorted_values)
+    # Use a perceptually uniform colormap
+    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_purposes)))
+    
+    plt.bar(sorted_purposes, sorted_values, color=colors)
     plt.title(f'컴퓨터 용도별 분포{suffix}')
     plt.xlabel('용도')
     plt.ylabel('대수')
@@ -77,7 +81,10 @@ def create_visualizations(data, suffix=''):
     sorted_data = sorted(zip(regions, computers), key=lambda x: x[1])
     sorted_regions, sorted_computers = zip(*sorted_data)
     
-    plt.bar(sorted_regions, sorted_computers)
+    # Use a perceptually uniform colormap
+    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_regions)))
+    
+    plt.bar(sorted_regions, sorted_computers, color=colors)
     plt.title(f'지역별 컴퓨터 보유 현황{suffix}')
     plt.xlabel('지역')
     plt.ylabel('컴퓨터 대수')
@@ -95,7 +102,10 @@ def create_visualizations(data, suffix=''):
     sorted_data = sorted(zip(school_types, school_counts), key=lambda x: x[1])
     sorted_school_types, sorted_school_counts = zip(*sorted_data)
     
-    plt.bar(sorted_school_types, sorted_school_counts)
+    # Use a perceptually uniform colormap
+    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
+    
+    plt.bar(sorted_school_types, sorted_school_counts, color=colors)
     plt.title(f'학교 유형별 분포{suffix}')
     plt.xlabel('학교 유형')
     plt.ylabel('학교 수')
@@ -113,7 +123,10 @@ def create_visualizations(data, suffix=''):
     sorted_data = sorted(zip(school_types, avg_computers), key=lambda x: x[1])
     sorted_school_types, sorted_avg_computers = zip(*sorted_data)
     
-    plt.bar(sorted_school_types, sorted_avg_computers)
+    # Use a perceptually uniform colormap
+    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
+    
+    plt.bar(sorted_school_types, sorted_avg_computers, color=colors)
     plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix}')
     plt.xlabel('학교 유형')
     plt.ylabel('평균 컴퓨터 대수')
