@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, send_from_directory
 import httpx
 import os
 from dotenv import load_dotenv
@@ -11,14 +11,31 @@ app = Flask(__name__)
 API_KEY = os.getenv('ANTHROPIC_API_KEY')
 API_URL = "https://api.anthropic.com/v1/messages"
 
+# Debug print to check if API key is loaded
+print(f"API Key loaded: {'Yes' if API_KEY else 'No'}")
+print(f"API Key length: {len(API_KEY) if API_KEY else 0}")
+print(f"API Key first 5 chars: {API_KEY[:5] if API_KEY else 'None'}")
+
 @app.route('/')
 def index():
     return render_template('index.html')
+
+# 데이터 파일 제공을 위한 라우트
+@app.route('/data/<path:filename>')
+def serve_data(filename):
+    return send_from_directory('data', filename)
 
 @app.route('/chat', methods=['POST'])
 def chat():
     max_retries = 3
     retry_delay = 1  # seconds
+    
+    # Check if API key is available
+    if not API_KEY or API_KEY == 'your_api_key_here':
+        return jsonify({
+            'status': 'error',
+            'message': 'API key is not configured. Please update the .env file with your Anthropic API key.'
+        }), 500
     
     for attempt in range(max_retries):
         try:
@@ -76,4 +93,4 @@ def chat():
             }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001) 
+    app.run(debug=True, port=5003)

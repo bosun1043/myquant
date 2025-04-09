@@ -49,6 +49,13 @@
     background-color: #f8f9fa;
 }
 
+/* Removing unused distinction line style for the entire row */
+/*
+.distinction-line-row {
+    border-top: 2px solid #ff6b6b; 
+}
+*/
+
 /* Image styles */
 .img-fluid {
     max-width: 100%;

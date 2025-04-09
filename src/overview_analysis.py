@@ -4,6 +4,7 @@ import seaborn as sns
 import numpy as np
 import platform
 import os
+import matplotlib.cm as cm # Import colormap module
 
 # Set font for Korean text
 if platform.system() == 'Darwin':  # macOS
@@ -52,9 +53,33 @@ def create_visualizations(df, suffix):
     school_counts = df['구분'].value_counts()
     plt.figure(figsize=(10, 6))
     if not school_counts.empty:
-        plt.pie(school_counts, labels=school_counts.index, autopct='%1.1f%%', startangle=90)
+        # --- Improvements Start ---
+        num_slices = len(school_counts)
+        # Use a perceptually uniform colormap like 'viridis'
+        colors = cm.viridis(np.linspace(0.1, 0.9, num_slices))
+
+        # Adjust labeldistance and pctdistance to push labels outwards
+        # Decrease fontsize if labels are still overlapping
+        wedges, texts, autotexts = plt.pie(
+            school_counts,
+            labels=school_counts.index,
+            autopct='%1.1f%%',
+            startangle=110, # Adjusted start angle slightly
+            colors=colors,
+            pctdistance=0.85, # Distance of percentage labels from center
+            labeldistance=1.1, # Distance of text labels from center
+            textprops={'fontsize': 9} # Adjust font size if necessary
+        )
+        
+        # Optional: Adjust autopct text color for better contrast on dark slices
+        for i, autotext in enumerate(autotexts):
+             # If the slice color is dark, make the percentage text white
+             if np.mean(colors[i][:3]) < 0.5: # Check average RGB brightness
+                 autotext.set_color('white')
+        # --- Improvements End ---
+                 
         plt.title(f'학교 유형별 분포{suffix.replace("_", " ")}')
-        plt.axis('equal')
+        plt.axis('equal') # Equal aspect ratio ensures that pie is drawn as a circle.
         plt.savefig(f'../static/data/overview/school_type_distribution{suffix}.png')
     plt.close()
 
@@ -75,7 +100,11 @@ def create_visualizations(df, suffix):
     school_computers = df.groupby('구분')['전체'].mean()
     plt.figure(figsize=(10, 6))
     if not school_computers.empty:
-        school_computers.plot(kind='bar')
+        # Sort values from smallest to largest
+        school_computers_sorted = school_computers.sort_values()
+        # Create a color map with '전체' in orange and others in default color
+        colors = ['orange' if idx == '전체' else plt.cm.Blues(0.7) for idx in school_computers_sorted.index]
+        school_computers_sorted.plot(kind='bar', color=colors)
         plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix.replace("_", " ")}')
         plt.xlabel('학교 유형')
         plt.ylabel('평균 컴퓨터 수')
