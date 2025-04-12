@@ -55,16 +55,61 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Fetch data from API
-        fetch(`/api/overview/${apiParam}`)
-            .then(response => response.json())
-            .then(data => {
-                const tableContainer = document.querySelector(`#${visualizationType}-visualization .data-table`);
-                if (tableContainer) {
-                    tableContainer.innerHTML = createTable(data);
+        try {
+            // Fetch data from API
+            const response = await fetch(`/api/overview/${apiParam}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            
+            // Update table
+            const tableContainer = document.querySelector(`#${visualizationType}-visualization .data-table`);
+            if (tableContainer) {
+                if (Array.isArray(data)) {
+                    const table = createDataTable(data);
+                    tableContainer.innerHTML = table;
+                } else {
+                    console.error('Data is not in the expected format:', data);
+                    tableContainer.innerHTML = '<p class="text-danger">데이터를 불러오는 중 오류가 발생했습니다.</p>';
                 }
-            })
-            .catch(error => console.error('Error loading data:', error));
+            }
+        } catch (error) {
+            console.error('Error loading data:', error);
+            const tableContainer = document.querySelector(`#${visualizationType}-visualization .data-table`);
+            if (tableContainer) {
+                tableContainer.innerHTML = '<p class="text-danger">데이터를 불러오는 중 오류가 발생했습니다.</p>';
+            }
+        }
+    }
+
+    // Function to create a data table
+    function createDataTable(data) {
+        if (!data || data.length === 0) return '<p>데이터가 없습니다.</p>';
+        
+        const headers = Object.keys(data[0]);
+        let tableHTML = '<table class="table table-striped">';
+        
+        // Add headers
+        tableHTML += '<thead><tr>';
+        headers.forEach(header => {
+            tableHTML += `<th>${header}</th>`;
+        });
+        tableHTML += '</tr></thead>';
+        
+        // Add data rows
+        tableHTML += '<tbody>';
+        data.forEach(row => {
+            tableHTML += '<tr>';
+            headers.forEach(header => {
+                const value = row[header];
+                tableHTML += `<td>${value !== null ? value : '-'}</td>`;
+            });
+            tableHTML += '</tr>';
+        });
+        tableHTML += '</tbody></table>';
+        
+        return tableHTML;
     }
 
     // Function to update visualizations based on selected school type
@@ -473,5 +518,70 @@ document.addEventListener('DOMContentLoaded', function() {
                     .catch(error => console.error('Error loading usage data:', error));
                 break;
         }
+    }
+
+    // Function to request analysis from Claude API
+    async function requestAnalysis(data, summaryRequest) {
+        try {
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data: data,
+                    summary_request: summaryRequest
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                displayAnalysis(result.analysis);
+            } else {
+                console.error('Analysis failed:', result.error);
+                alert('분석 중 오류가 발생했습니다: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('서버 요청 중 오류가 발생했습니다: ' + error.message);
+        }
+    }
+
+    // Function to display the analysis
+    function displayAnalysis(analysis) {
+        const analysisContainer = document.getElementById('analysis-container');
+        if (!analysisContainer) {
+            console.error('Analysis container not found');
+            return;
+        }
+
+        // Convert markdown headers to HTML
+        const formattedAnalysis = analysis
+            .replace(/## ([^\n]+)/g, '<h2>$1</h2>')
+            .replace(/\n- /g, '<br>• ');
+
+        analysisContainer.innerHTML = formattedAnalysis;
+        analysisContainer.style.display = 'block';
+    }
+
+    // Add event listener for analysis button
+    const analyzeButton = document.getElementById('analyze-button');
+    if (analyzeButton) {
+        analyzeButton.addEventListener('click', function() {
+            // Get the current data displayed
+            const dataContainer = document.getElementById('data-container');
+            const data = dataContainer ? dataContainer.textContent : '';
+            
+            // Get the analysis request from the user
+            const summaryRequest = "학교 유형별 컴퓨터 보유 현황을 분석하고, 교육 현장에서의 디지털 격차에 대해 설명해주세요.";
+            
+            // Request the analysis
+            requestAnalysis(data, summaryRequest);
+        });
     }
 });

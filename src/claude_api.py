@@ -37,20 +37,24 @@ To complete this task, follow these steps:
 4. Synthesize your findings into a concise summary.
 5. If appropriate, include any notable statistics or figures that support your summary.
 
-Present your summary in the following format:
+You MUST format your response EXACTLY as follows:
 
 ## 주요 포인트
-- [List 3 key points or takeaways from your analysis]
+- Point 1: [First key point]
+- Point 2: [Second key point]
+- Point 3: [Third key point]
 
 ## 데이터의 의미
-[State what could be the social implications of this data in 60 words or less. Mention that your answer is not absolute and could not be totally accurate.]
+[Exactly 60 words or less about the social implications of this data. Include a note that this interpretation is not absolute and may not be totally accurate.]
 
 Important reminders:
 - Base your summary solely on the provided data. Do not introduce external information or make assumptions beyond what is presented in the data.
 - Ensure your summary directly addresses the user's specific request.
 - Be objective in your analysis and avoid personal opinions or speculations.
 - If the data is insufficient to fully address the summary request, state this clearly in your response.
-- There is no need for further analysis other than the ones written here"""
+- There is no need for further analysis other than the ones written here
+- You MUST follow the exact format specified above with the two sections and bullet points
+- Do not add any additional sections or content beyond what is specified"""
 
             message = self.client.messages.create(
                 model="claude-3-7-sonnet-20250219",

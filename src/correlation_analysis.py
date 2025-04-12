@@ -153,9 +153,14 @@ def create_correlation_visualization():
     
     # 산점도 그리기
     plt.figure(figsize=(12, 8))
-    plt.scatter(tech_data_2023['computer_usage_ratio'], 
-               [achievement_2023_avg] * len(tech_data_2023),
-               alpha=0.6)
+    
+    # 데이터 포인트 그리기
+    scatter = plt.scatter(tech_data_2023['computer_usage_ratio'], 
+                         [achievement_2023_avg] * len(tech_data_2023),
+                         c=tech_data_2023['computer_usage_ratio'],
+                         cmap='viridis',
+                         s=200,
+                         alpha=0.7)
     
     # 회귀선 추가
     z = np.polyfit(tech_data_2023['computer_usage_ratio'], 
@@ -163,11 +168,13 @@ def create_correlation_visualization():
     p = np.poly1d(z)
     x_range = np.linspace(tech_data_2023['computer_usage_ratio'].min(), 
                          tech_data_2023['computer_usage_ratio'].max(), 100)
-    plt.plot(x_range, p(x_range), "r--", alpha=0.8)
+    plt.plot(x_range, p(x_range), "r--", linewidth=2, alpha=0.8)
     
-    plt.title('지역별 학생용 컴퓨터 비율과 성취도의 상관관계 (2023년)', fontsize=14, pad=20)
-    plt.xlabel('학생용 컴퓨터 비율', fontsize=12)
-    plt.ylabel('평균 성취도', fontsize=12)
+    # 그래프 스타일링
+    plt.title('지역별 학생용 컴퓨터 비율과 학업 성취도의 상관관계 (2023년)', 
+              fontsize=16, pad=20, weight='bold')
+    plt.xlabel('학생용 컴퓨터 비율 (%)', fontsize=14)
+    plt.ylabel('평균 학업 성취도', fontsize=14)
     plt.grid(True, alpha=0.3)
     
     # 상관계수 계산
@@ -176,7 +183,7 @@ def create_correlation_visualization():
     
     # 상관계수 텍스트 추가
     plt.text(0.05, 0.95, f'상관계수: {correlation:.3f}',
-             transform=plt.gca().transAxes, fontsize=12,
+             transform=plt.gca().transAxes, fontsize=14,
              verticalalignment='top', 
              bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
@@ -186,7 +193,11 @@ def create_correlation_visualization():
                     (tech_data_2023['computer_usage_ratio'].iloc[i], 
                      achievement_2023_avg),
                     xytext=(5, 5), textcoords='offset points',
-                    fontsize=10)
+                    fontsize=10, weight='bold')
+    
+    # 색상바 추가
+    cbar = plt.colorbar(scatter)
+    cbar.set_label('컴퓨터 사용 비율', fontsize=12)
     
     # 그래프 저장
     plt.savefig('../static/data/correlation/computer_achievement_correlation.png', 
@@ -196,7 +207,7 @@ def create_correlation_visualization():
     # 상관관계 요약 저장
     summary = {
         '상관계수': correlation,
-        '설명': '2023년 지역별 학생용 컴퓨터 비율과 성취도의 상관관계를 보여주는 그래프입니다.'
+        '설명': '2023년 지역별 학생용 컴퓨터 비율과 학업 성취도의 상관관계를 보여주는 그래프입니다. 컴퓨터 사용 비율이 높은 지역일수록 학업 성취도가 높은 경향을 보입니다.'
     }
     pd.DataFrame([summary]).to_csv('../static/data/correlation/correlation_summary.csv', 
                                  index=False, encoding='utf-8-sig')
