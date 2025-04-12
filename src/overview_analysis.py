@@ -14,42 +14,20 @@ else:  # Windows
 plt.rcParams['axes.unicode_minus'] = False
 
 def create_overview_visualizations():
-    # Read data
-    df = pd.read_csv('../data/total_region.csv')
+    # Read the original data (before filtering)
+    df = pd.read_csv('../data/total_region_original.csv')  # Use the original data file
     print("Original data shape:", df.shape)
     print("Columns:", df.columns)
     
-    # Create visualization directory if it doesn't exist
-    os.makedirs('../static/data/overview', exist_ok=True)
-    
-    # Separate data into school types and regions
-    school_types = ['초등학교', '중학교', '고등학교', '특수학교']
-    regions = ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주']
-    
-    # Create visualizations for school types
-    school_data = df[df['구분'].isin(school_types)]
-    if not school_data.empty:
-        create_visualizations(school_data, '_school_types')
-    
-    # Create visualizations for regions
-    region_data = df[df['구분'].isin(regions)]
-    if not region_data.empty:
-        create_visualizations(region_data, '_regions')
-    
-    # Create visualizations for each school type
-    for school_type in school_types:
-        filtered_df = df[df['구분'] == school_type]
-        print(f"\nCreating visualizations for {school_type}")
-        print(f"Filtered data shape: {filtered_df.shape}")
-        print("Filtered data sample:")
-        print(filtered_df.head())
-        
-        if not filtered_df.empty:
-            create_visualizations(filtered_df, f'_{school_type}')
+    # Create visualizations with all data
+    create_visualizations(df, '')
 
 def create_visualizations(data, suffix=''):
     # Create directory if it doesn't exist
     os.makedirs('../static/data/overview', exist_ok=True)
+    
+    # School types for filtering
+    school_types = ['초등학교', '중학교', '일반고', '특성화고', '자율고', '특수목적고', '특수학교']
     
     # Computer purpose distribution
     plt.figure(figsize=(10, 6))
@@ -72,68 +50,90 @@ def create_visualizations(data, suffix=''):
     plt.savefig(f'../static/data/overview/computer_purpose_distribution{suffix}.png')
     plt.close()
     
-    # Regional distribution
+    # Regional distribution (excluding school types)
     plt.figure(figsize=(12, 6))
-    regions = data['구분']
-    computers = data['전체']
+    regions = data[~data['구분'].isin(school_types)]
     
-    # Sort regions and computers in ascending order
-    sorted_data = sorted(zip(regions, computers), key=lambda x: x[1])
-    sorted_regions, sorted_computers = zip(*sorted_data)
-    
-    # Use a perceptually uniform colormap
-    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_regions)))
-    
-    plt.bar(sorted_regions, sorted_computers, color=colors)
-    plt.title(f'지역별 컴퓨터 보유 현황{suffix}')
-    plt.xlabel('지역')
-    plt.ylabel('컴퓨터 대수')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig(f'../static/data/overview/regional_distribution{suffix}.png')
+    if not regions.empty:
+        sorted_data = sorted(zip(regions['구분'], regions['전체']), key=lambda x: x[1], reverse=True)
+        sorted_regions, sorted_computers = zip(*sorted_data)
+        
+        colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_regions)))
+        plt.bar(sorted_regions, sorted_computers, color=colors)
+        plt.title(f'지역별 컴퓨터 보유 현황{suffix}')
+        plt.xlabel('지역')
+        plt.ylabel('컴퓨터 대수')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig(f'../static/data/overview/regional_distribution{suffix}.png')
     plt.close()
     
-    # School type distribution
+    # School type distribution (only school types)
     plt.figure(figsize=(10, 6))
-    school_types = data['구분']
-    school_counts = data['학교 수']
+    school_data = data[data['구분'].isin(school_types)]
     
-    # Sort school types and counts in ascending order
-    sorted_data = sorted(zip(school_types, school_counts), key=lambda x: x[1])
-    sorted_school_types, sorted_school_counts = zip(*sorted_data)
-    
-    # Use a perceptually uniform colormap
-    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
-    
-    plt.bar(sorted_school_types, sorted_school_counts, color=colors)
-    plt.title(f'학교 유형별 분포{suffix}')
-    plt.xlabel('학교 유형')
-    plt.ylabel('학교 수')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.savefig(f'../static/data/overview/school_type_distribution{suffix}.png')
+    if not school_data.empty:
+        sorted_data = sorted(zip(school_data['구분'], school_data['학교 수']), key=lambda x: x[1], reverse=True)
+        sorted_school_types, sorted_school_counts = zip(*sorted_data)
+        
+        colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
+        plt.bar(sorted_school_types, sorted_school_counts, color=colors)
+        plt.title(f'학교 유형별 분포{suffix}')
+        plt.xlabel('학교 유형')
+        plt.ylabel('학교 수')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig(f'../static/data/overview/school_type_distribution{suffix}.png')
     plt.close()
     
-    # Average computer ownership by school type
+    # Average computer ownership by school type (only school types)
     plt.figure(figsize=(12, 6))
-    school_types = data['구분']
-    avg_computers = data['전체'] / data['학교 수']
+    if not school_data.empty:
+        avg_computers = school_data['전체'] / school_data['학교 수']
+        sorted_data = sorted(zip(school_data['구분'], avg_computers), key=lambda x: x[1], reverse=True)
+        sorted_school_types, sorted_avg_computers = zip(*sorted_data)
+        
+        colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
+        plt.bar(sorted_school_types, sorted_avg_computers, color=colors)
+        plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix}')
+        plt.xlabel('학교 유형')
+        plt.ylabel('평균 컴퓨터 대수')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig(f'../static/data/overview/average_computer_ownership{suffix}.png')
+    plt.close()
+
+def create_regional_distribution(df, save_dir, suffix=''):
+    """Create regional distribution visualization"""
+    print(f"Creating regional distribution visualization for {suffix if suffix else 'all schools'}")
     
-    # Sort school types and average computers in ascending order
-    sorted_data = sorted(zip(school_types, avg_computers), key=lambda x: x[1])
-    sorted_school_types, sorted_avg_computers = zip(*sorted_data)
+    # Exclude specific school type columns
+    columns_to_exclude = [
+        '초등학교', '중학교', '일반고', '특성화고', 
+        '자율고', '특수목적고', '특수학교'
+    ]
     
-    # Use a perceptually uniform colormap
-    colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
+    # Filter out the columns we don't want
+    regional_data = df.drop(columns=columns_to_exclude, errors='ignore')
     
-    plt.bar(sorted_school_types, sorted_avg_computers, color=colors)
-    plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix}')
-    plt.xlabel('학교 유형')
-    plt.ylabel('평균 컴퓨터 대수')
+    # Get the remaining columns (which should be regional data)
+    regional_columns = [col for col in regional_data.columns if col not in ['source_file']]
+    
+    plt.figure(figsize=(12, 8))
+    regional_data[regional_columns].sum().plot(kind='bar', color=cm.viridis(np.linspace(0, 1, len(regional_columns))))
+    plt.title(f'지역별 컴퓨터 보유 현황 {suffix}')
+    plt.xlabel('지역')
+    plt.ylabel('컴퓨터 수')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(f'../static/data/overview/school_type_computers{suffix}.png')
+    
+    # Save the visualization
+    save_path = os.path.join(save_dir, f'regional_distribution{suffix}.png')
+    plt.savefig(save_path)
     plt.close()
+    print(f"Saved regional distribution visualization to {save_path}")
+    
+    return save_path
 
 if __name__ == '__main__':
     create_overview_visualizations() 
