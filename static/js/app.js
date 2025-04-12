@@ -9,14 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     })
 
-    // Overview visualization buttons
-    const overviewButtons = document.querySelectorAll('[data-visualization]');
-    const visualizationSections = document.querySelectorAll('.visualization-section');
-
-    overviewButtons.forEach(button => {
+    // Overview tab visualization buttons
+    const visualizationButtons = document.querySelectorAll('.visualization-btn');
+    visualizationButtons.forEach(button => {
         button.addEventListener('click', function() {
             // Remove active class from all buttons
-            overviewButtons.forEach(btn => {
+            visualizationButtons.forEach(btn => {
                 btn.classList.remove('active', 'btn-primary');
                 btn.classList.add('btn-outline-primary');
             });
@@ -24,78 +22,49 @@ document.addEventListener('DOMContentLoaded', function() {
             // Add active class to clicked button
             this.classList.remove('btn-outline-primary');
             this.classList.add('active', 'btn-primary');
-
-            const selectedVisualization = this.getAttribute('data-visualization');
             
             // Hide all visualization sections
-            visualizationSections.forEach(section => {
+            document.querySelectorAll('.visualization-section').forEach(section => {
                 section.style.display = 'none';
             });
             
             // Show selected visualization section
-            const targetSection = document.getElementById(`${selectedVisualization}-visualization`);
+            const visualizationType = this.getAttribute('data-visualization');
+            const targetSection = document.getElementById(`${visualizationType}-visualization`);
             if (targetSection) {
                 targetSection.style.display = 'block';
+                loadData(visualizationType);
+            } else {
+                console.error(`Visualization section not found for type: ${visualizationType}`);
             }
-
-            // Load data for the selected visualization
-            loadData(selectedVisualization);
         });
     });
 
     // Function to load data and update table
-    async function loadData(visualization) {
-        try {
-            // Map visualization IDs to API parameters
-            const visualizationMap = {
-                'computer_purpose': 'purpose',
-                'regional': 'regional',
-                'school_type': 'school_type',
-                'average': 'school_type'
-            };
-
-            const apiVisualization = visualizationMap[visualization] || visualization;
-            const response = await fetch(`/data?visualization=${apiVisualization}`);
-            const data = await response.json();
-            
-            // Get the table container for this visualization
-            const tableContainer = document.querySelector(`.visualization-section[data-visualization="${visualization}"] .data-table`);
-            if (!tableContainer) {
-                console.error(`Table container not found for visualization: ${visualization}`);
-                return;
-            }
-            
-            // Create table HTML
-            let tableHTML = '<table class="data-table">';
-            tableHTML += '<thead><tr>';
-            tableHTML += '<th>구분</th>';
-            tableHTML += '<th>학교 수</th>';
-            tableHTML += '<th>전체</th>';
-            tableHTML += '<th>학생용</th>';
-            tableHTML += '<th>교사용</th>';
-            tableHTML += '<th>직원용</th>';
-            tableHTML += '<th>기타</th>';
-            tableHTML += '</tr></thead>';
-            tableHTML += '<tbody>';
-            
-            // Add data rows
-            data.forEach(row => {
-                tableHTML += '<tr>';
-                tableHTML += `<td>${row['구분']}</td>`;
-                tableHTML += `<td>${row['학교 수']}</td>`;
-                tableHTML += `<td>${row['전체']}</td>`;
-                tableHTML += `<td>${row['학생용']}</td>`;
-                tableHTML += `<td>${row['교사용']}</td>`;
-                tableHTML += `<td>${row['직원용']}</td>`;
-                tableHTML += `<td>${row['기타']}</td>`;
-                tableHTML += '</tr>';
-            });
-            
-            tableHTML += '</tbody></table>';
-            tableContainer.innerHTML = tableHTML;
-        } catch (error) {
-            console.error('Error loading data:', error);
+    async function loadData(visualizationType) {
+        const visualizationMap = {
+            'purpose': 'computer_purpose',
+            'region': 'regional',
+            'school-type': 'school_type',
+            'school-computers': 'average'
+        };
+        
+        const apiParam = visualizationMap[visualizationType];
+        if (!apiParam) {
+            console.error(`No API parameter mapping found for visualization type: ${visualizationType}`);
+            return;
         }
+        
+        // Fetch data from API
+        fetch(`/api/overview/${apiParam}`)
+            .then(response => response.json())
+            .then(data => {
+                const tableContainer = document.querySelector(`#${visualizationType}-visualization .data-table`);
+                if (tableContainer) {
+                    tableContainer.innerHTML = createTable(data);
+                }
+            })
+            .catch(error => console.error('Error loading data:', error));
     }
 
     // Function to update visualizations based on selected school type
@@ -378,4 +347,131 @@ document.addEventListener('DOMContentLoaded', function() {
             updateVisualizations(selectedSchool);
         });
     });
+
+    // Load achievement data
+    fetch('/static/data/grade/middle_school_comparison.csv')
+        .then(response => response.text())
+        .then(data => {
+            const rows = data.split('\n');
+            const headers = rows[0].split(',');
+            
+            // Create timeline visualization
+            const timelineContainer = document.getElementById('achievement-timeline');
+            if (timelineContainer) {
+                let timelineHTML = '<div class="timeline">';
+                
+                // Skip header row
+                for (let i = 1; i < rows.length; i++) {
+                    const cells = rows[i].split(',');
+                    if (cells.length > 1) {
+                        timelineHTML += `
+                            <div class="timeline-item">
+                                <div class="timeline-year">${cells[0]}</div>
+                                <div class="timeline-content">
+                                    <h4>${cells[2]}</h4>
+                                    <p>${cells[3]}</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
+                timelineHTML += '</div>';
+                timelineContainer.innerHTML = timelineHTML;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading achievement data:', error);
+        });
+
+    // Digital Resources tab visualization buttons
+    const digitalResourceButtons = document.querySelectorAll('#digital-resources .btn-group .btn');
+    digitalResourceButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            digitalResourceButtons.forEach(btn => {
+                btn.classList.remove('active', 'btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
+            // Add active class to clicked button
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('active', 'btn-primary');
+            
+            // Hide all visualization sections
+            document.querySelectorAll('#digital-resources .visualization-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected visualization section
+            const visualizationType = this.getAttribute('data-visualization');
+            const targetSection = document.getElementById(`${visualizationType}-visualization`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                loadDigitalResourceData(visualizationType);
+            } else {
+                console.error(`Visualization section not found for type: ${visualizationType}`);
+            }
+        });
+    });
+
+    // Function to load digital resource data
+    function loadDigitalResourceData(visualizationType) {
+        switch(visualizationType) {
+            case 'trend':
+                // Load trend data from CSV
+                fetch('/static/data/digital_resources/digital_resources_summary.csv')
+                    .then(response => response.text())
+                    .then(data => {
+                        const rows = data.split('\n');
+                        const tbody = document.getElementById('trend-data');
+                        if (!tbody) return;
+                        
+                        tbody.innerHTML = ''; // Clear existing content
+                        
+                        // Skip header row
+                        for (let i = 1; i < rows.length; i++) {
+                            const cells = rows[i].split(',');
+                            if (cells.length > 1) {
+                                const row = document.createElement('tr');
+                                cells.forEach(cell => {
+                                    const td = document.createElement('td');
+                                    td.textContent = cell;
+                                    row.appendChild(td);
+                                });
+                                tbody.appendChild(row);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error loading trend data:', error));
+                break;
+            case 'usage':
+                // Load usage data from CSV
+                fetch('/static/data/digital_resources/region_laptop_summary.csv')
+                    .then(response => response.text())
+                    .then(data => {
+                        const rows = data.split('\n');
+                        const tbody = document.getElementById('region-data');
+                        if (!tbody) return;
+                        
+                        tbody.innerHTML = ''; // Clear existing content
+                        
+                        // Skip header row
+                        for (let i = 1; i < rows.length; i++) {
+                            const cells = rows[i].split(',');
+                            if (cells.length > 1) {
+                                const row = document.createElement('tr');
+                                cells.forEach(cell => {
+                                    const td = document.createElement('td');
+                                    td.textContent = cell;
+                                    row.appendChild(td);
+                                });
+                                tbody.appendChild(row);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error loading usage data:', error));
+                break;
+        }
+    }
 });

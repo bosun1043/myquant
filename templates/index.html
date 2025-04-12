@@ -104,96 +104,54 @@
             <!-- Overview Section -->
             <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
                 <div class="filter-buttons mb-4">
-                    <button class="btn btn-primary active" data-visualization="purpose">컴퓨터 용도별 분포</button>
-                    <button class="btn btn-outline-primary" data-visualization="region">지역별 컴퓨터 보유 현황</button>
-                    <button class="btn btn-outline-primary" data-visualization="school-type">학교 유형별 분포</button>
-                    <button class="btn btn-outline-primary" data-visualization="school-computers">학교 유형별 평균 컴퓨터 보유 현황</button>
+                    <button class="btn btn-primary active visualization-btn" data-visualization="purpose">컴퓨터 용도별 분포</button>
+                    <button class="btn btn-outline-primary visualization-btn" data-visualization="region">지역별 컴퓨터 보유 현황</button>
+                    <button class="btn btn-outline-primary visualization-btn" data-visualization="school-type">학교 유형별 분포</button>
+                    <button class="btn btn-outline-primary visualization-btn" data-visualization="school-computers">학교 유형별 평균 컴퓨터 보유 현황</button>
                 </div>
                 <div class="row">
                     <div class="col-md-12 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <div class="visualization-section" id="purpose-visualization">
-                                    <h5 class="card-title">컴퓨터 용도별 분포</h5>
-                                    <div class="visualization">
-                                        <img src="/static/data/overview/computer_purpose_distribution.png" alt="컴퓨터 용도별 분포" class="img-fluid">
+                                <div class="visualization-container">
+                                    <div class="visualization-section active" id="purpose-visualization" data-visualization="purpose">
+                                        <h2>컴퓨터 용도별 분포</h2>
+                                        <div class="visualization-content">
+                                            <img src="{{ url_for('static', filename='data/overview/computer_purpose_distribution.png') }}" alt="Computer Purpose Distribution">
+                                            <div class="data-table-container">
+                                                <div class="data-table"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="table-responsive mt-4">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>용도</th>
-                                                    <th>컴퓨터 수</th>
-                                                    <th>비율</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="purpose-data">
-                                                <!-- Data will be populated by JavaScript -->
-                                            </tbody>
-                                        </table>
+
+                                    <div class="visualization-section" id="region-visualization" data-visualization="region">
+                                        <h2>지역별 컴퓨터 보유 현황</h2>
+                                        <div class="visualization-content">
+                                            <img src="{{ url_for('static', filename='data/overview/regional_distribution.png') }}" alt="Regional Distribution">
+                                            <div class="data-table-container">
+                                                <div class="data-table"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="visualization-section" id="region-visualization" style="display: none;">
-                                    <h5 class="card-title">지역별 컴퓨터 보유 현황</h5>
-                                    <div class="visualization">
-                                        <img src="/static/data/overview/regional_distribution.png" alt="지역별 컴퓨터 보유 현황" class="img-fluid">
+
+                                    <div class="visualization-section" id="school-type-visualization" data-visualization="school-type">
+                                        <h2>학교 유형별 분포</h2>
+                                        <div class="visualization-content">
+                                            <img src="{{ url_for('static', filename='data/overview/school_type_distribution.png') }}" alt="School Type Distribution">
+                                            <div class="data-table-container">
+                                                <div class="data-table"></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="table-responsive mt-4">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>지역</th>
-                                                    <th>컴퓨터 수</th>
-                                                    <th>비율</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="region-data">
-                                                <!-- Data will be populated by JavaScript -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="visualization-section" id="school-type-visualization" style="display: none;">
-                                    <h5 class="card-title">학교 유형별 분포</h5>
-                                    <div class="visualization">
-                                        <img src="/static/data/overview/school_type_distribution.png" alt="학교 유형별 분포" class="img-fluid">
-                                    </div>
-                                    <div class="table-responsive mt-4">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>학교 유형</th>
-                                                    <th>학교 수</th>
-                                                    <th>비율</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="school-type-data">
-                                                <!-- Data will be populated by JavaScript -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                                <div class="visualization-section" id="school-computers-visualization" style="display: none;">
-                                    <h5 class="card-title">학교 유형별 평균 컴퓨터 보유 현황</h5>
-                                    <div class="visualization">
-                                        <img src="/static/data/overview/school_type_computers.png" alt="학교 유형별 평균 컴퓨터 보유 현황" class="img-fluid">
-                                    </div>
-                                    <div class="table-responsive mt-4">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>학교 유형</th>
-                                                    <th>평균 컴퓨터 수</th>
-                                                    <th>학생용</th>
-                                                    <th>교사용</th>
-                                                    <th>직원용</th>
-                                                    <th>기타</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="school-computers-data">
-                                                <!-- Data will be populated by JavaScript -->
-                                            </tbody>
-                                        </table>
+
+                                    <div class="visualization-section" id="school-computers-visualization" data-visualization="school-computers">
+                                        <h2>학교 유형별 평균 컴퓨터 보유 현황</h2>
+                                        <div class="visualization-content">
+                                            <img src="{{ url_for('static', filename='data/overview/average_computer_ownership.png') }}" alt="Average Computer Ownership">
+                                            <div class="data-table-container">
+                                                <div class="data-table"></div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -204,135 +162,80 @@
 
             <!-- Digital Resources Section -->
             <div class="tab-pane fade" id="digital-resources" role="tabpanel" aria-labelledby="digital-resources-tab">
-                <h2>디지털 학습 자원 현황</h2>
-                
-                <!-- Button Group for Visualization Control -->
-                <div class="row mb-4">
-                    <div class="col-md-12">
-                        <div class="btn-group" role="group">
-                            <button type="button" class="btn btn-primary active" data-visualization="trend">변화 추이</button>
-                            <button type="button" class="btn btn-primary" data-visualization="infra">인프라 구성</button>
-                            <button type="button" class="btn btn-primary" data-visualization="usage">자원 활용도</button>
-                        </div>
-                    </div>
+                <div class="btn-group mb-4" role="group">
+                    <button type="button" class="btn btn-primary active" data-visualization="trend">변화 추이</button>
+                    <button type="button" class="btn btn-outline-primary" data-visualization="usage">자원 활용도</button>
                 </div>
-
-                <!-- Trend Visualization -->
-                <div class="row visualization-section" id="trend-visualization">
+                <div class="row">
                     <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">디지털 자원 변화 추이 (2021-2023)</h5>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>연도</th>
-                                                <th>전체 컴퓨터 수</th>
-                                                <th>학생용 컴퓨터 비율 (%)</th>
-                                                <th>교사용 컴퓨터 비율 (%)</th>
-                                                <th>직원용 컴퓨터 비율 (%)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="trend-data">
-                                            <!-- Data will be populated by JavaScript -->
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="mt-4">
-                                    <img src="/static/data/digital_resources/digital_resources_trend.png" alt="디지털 자원 변화 추이" class="img-fluid">
-                                </div>
+                        <div class="visualization-section" id="trend-visualization" style="display: block;">
+                            <img src="{{ url_for('static', filename='data/digital_resources/digital_resources_trend.png') }}" 
+                                 alt="디지털 학습 자원 변화 추이" class="img-fluid mb-4">
+                            <div class="data-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>연도</th>
+                                            <th>전체 컴퓨터 수</th>
+                                            <th>학생용 컴퓨터 비율 (%)</th>
+                                            <th>교사용 컴퓨터 비율 (%)</th>
+                                            <th>직원용 컴퓨터 비율 (%)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="trend-data">
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Infrastructure Visualization -->
-                <div class="row visualization-section" id="infra-visualization" style="display: none;">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">디지털 인프라 구성</h5>
-                                <div id="digitalInfraChart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Usage Visualization -->
-                <div class="row visualization-section" id="usage-visualization" style="display: none;">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">디지털 자원 활용도</h5>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-outline-primary active" data-usage="trend">추이</button>
-                                    <button type="button" class="btn btn-outline-primary" data-usage="region">지역별 현황</button>
-                                </div>
-                                <div id="usage-trend" class="usage-section">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>연도</th>
-                                                    <th>전체 컴퓨터</th>
-                                                    <th>학생용 컴퓨터</th>
-                                                    <th>교사용 컴퓨터</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="trend-data">
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="mt-4">
-                                        <img src="/static/data/digital_resources/digital_resources_trend.png" alt="디지털 자원 변화 추이" class="img-fluid">
-                                    </div>
-                                </div>
-                                <div id="usage-region" class="usage-section" style="display: none;">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>지역</th>
-                                                    <th>전체 노트북</th>
-                                                    <th>학생용 노트북</th>
-                                                    <th>학생용 비율</th>
-                                                    <th>교사용 노트북</th>
-                                                    <th>교사용 비율</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="region-data">
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="mt-4">
-                                        <img src="/static/data/digital_resources/region_laptop_distribution.png" alt="지역별 노트북 활용 현황" class="img-fluid">
-                                    </div>
-                                </div>
+                        <div class="visualization-section" id="usage-visualization" style="display: none;">
+                            <img src="{{ url_for('static', filename='data/digital_resources/region_laptop_distribution.png') }}" 
+                                 alt="지역별 노트북 보유 현황" class="img-fluid mb-4">
+                            <div class="data-table">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>지역</th>
+                                            <th>학교 수</th>
+                                            <th>전체</th>
+                                            <th>학생용</th>
+                                            <th>교사용</th>
+                                            <th>직원용</th>
+                                            <th>기타</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="region-data">
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 학업 성취도 섹션 -->
+            <!-- Achievement Section -->
             <div class="tab-pane fade" id="achievement" role="tabpanel" aria-labelledby="achievement-tab">
-                <h2>수학 성취도 분석</h2>
+                <h2>학업 성취도 현황</h2>
+                
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">성취도 분포</h5>
-                                <div id="achievementDistChart"></div>
+                                <h5 class="card-title">학업 성취도 변화 추이</h5>
+                                <div id="achievement-timeline" class="timeline-container">
+                                    <!-- Timeline will be populated by JavaScript -->
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-12">
                         <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">연도별 추이</h5>
-                                <div id="achievementTrendChart"></div>
-                            </div>
+                            <!-- <div class="card-body">
+                                <h5 class="card-title">지역별 학업 성취도 비교</h5>
+                                <img src="/static/data/achievement/region_comparison.png" alt="지역별 학업 성취도 비교" class="img-fluid">
+                            </div> -->
                         </div>
                     </div>
                 </div>
