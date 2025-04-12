@@ -40,7 +40,22 @@
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container">
+        <!-- Analysis Request Form -->
+        <div class="analysis-form">
+            <h2>데이터 분석 요청</h2>
+            <form id="analysisForm">
+                <textarea name="summary_request" placeholder="분석하고 싶은 내용을 입력하세요..." required></textarea>
+                <button type="submit">분석 시작</button>
+            </form>
+        </div>
+
+        <!-- Analysis Results -->
+        <div class="analysis-results" id="analysisResults" style="display: none;">
+            <h2>분석 결과</h2>
+            <div id="analysisContent"></div>
+        </div>
+
         <!-- 검색 섹션 -->
         <div class="search-section mb-4">
             <div class="row">
