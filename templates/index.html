@@ -461,7 +461,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card">
-                                <div class="card-body">
+                                <div class="card-body p-4">
                                     <h5 class="card-title mb-4">지역별 HDI와 디지털 접근성의 상호작용 효과</h5>
                                     <!-- 지역 선택 버튼 그룹 -->
                                     <div class="btn-group mb-4" role="group" aria-label="지역 선택">
@@ -473,7 +473,7 @@
                                         <button type="button" class="btn btn-outline-primary" data-region="5">지역 5</button>
                                     </div>
                                     <!-- Plotly 그래프 컨테이너 -->
-                                    <div id="policy-impact-plot" style="width: 100%; height: 600px;"></div>
+                                    <div id="policy-impact-plot" style="width: 100%; height: 700px;" class="mb-4"></div>
                                     <div class="mt-4">
                                         <h6 class="fw-bold">분석 결과 해석</h6>
                                         <ul class="list-unstyled ps-3">
@@ -509,8 +509,8 @@
                         type: 'scatter',
                         name: `지역 ${region}`,
                         marker: {
-                            size: 8,
-                            opacity: 0.6
+                            size: 10,
+                            opacity: 0.7
                         },
                         visible: true
                     });
@@ -526,28 +526,59 @@
                         type: 'scatter',
                         name: `지역 ${region} 추세선`,
                         line: {
-                            dash: 'dot'
+                            dash: 'dot',
+                            width: 2
                         },
                         visible: true
                     });
                 });
 
                 const layout = {
-                    title: '디지털 접근성과 학업 성취도의 관계',
+                    title: {
+                        text: '디지털 접근성과 학업 성취도의 관계',
+                        font: {
+                            size: 24
+                        }
+                    },
                     xaxis: {
-                        title: '디지털 접근성 지수',
-                        zeroline: false
+                        title: {
+                            text: '디지털 접근성 지수',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        zeroline: false,
+                        tickfont: {
+                            size: 14
+                        }
                     },
                     yaxis: {
-                        title: '학업 성취도',
-                        zeroline: false
+                        title: {
+                            text: '학업 성취도',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        zeroline: false,
+                        tickfont: {
+                            size: 14
+                        }
                     },
                     hovermode: 'closest',
                     showlegend: true,
                     legend: {
                         x: 1,
                         xanchor: 'right',
-                        y: 1
+                        y: 1,
+                        font: {
+                            size: 14
+                        }
+                    },
+                    margin: {
+                        l: 80,
+                        r: 50,
+                        t: 100,
+                        b: 80
                     }
                 };
 
