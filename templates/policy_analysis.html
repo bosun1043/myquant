@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>정책 효과 분석</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <!-- MathJax Configuration -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -17,14 +19,80 @@
             }
         };
     </script>
+    <style>
+        .region-list {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+        .region-item {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 15px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .region-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .plot-container {
+            margin: 20px 0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>정책 효과 분석</h1>
         
         <div class="analysis-section">
+            <h2>지역별 HDI 현황</h2>
+            <div class="hdi-visualization">
+                <div id="hdi-plot" style="width: 800px; height: 500px;"></div>
+                <div class="hdi-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>지역</th>
+                                <th>HDI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for region in regional_hdi %}
+                            <tr>
+                                <td>{{ region.지역 }}</td>
+                                <td>{{ "%.3f"|format(region.HDI) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="analysis-section">
             <h2>다층모형 분석</h2>
             <p>학교 수준과 지역 수준의 변수를 모두 고려한 다층모형을 통해 디지털 교육 정책의 효과를 분석했습니다.</p>
+            
+            <div class="region-list">
+                {% for region in regional_hdi %}
+                <span class="region-item" 
+                      style="background-color: {{ ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3'][loop.index0] }};"
+                      data-region="{{ region.지역 }}"
+                      onmouseover="highlightRegion('{{ region.지역 }}')"
+                      onmouseout="resetHighlight()">
+                    {{ region.지역 }}
+                </span>
+                {% endfor %}
+            </div>
+            
+            <div class="interactive-plot">
+                <div id="policy-impact-plot" style="width: 800px; height: 600px;"></div>
+            </div>
             
             <div class="equation">
                 \[Y_{ij} = \beta_0 + \beta_1 \cdot \text{DigitalAccess}_{ij} + \beta_2 \cdot \text{HDI}_j + \beta_3 \cdot (\text{DigitalAccess}_{ij} \times \text{HDI}_j) + u_j + \epsilon_{ij}\]
@@ -66,5 +134,150 @@
             </ol>
         </div>
     </div>
+
+    <script>
+        // HDI plot data
+        var hdiData = {
+            type: 'bar',
+            x: {{ regional_hdi | map(attribute='지역') | list | tojson }},
+            y: {{ regional_hdi | map(attribute='HDI') | list | tojson }},
+            marker: {
+                color: 'rgb(55, 83, 109)'
+            }
+        };
+
+        var hdiLayout = {
+            title: '지역별 HDI 분포',
+            xaxis: {
+                title: '지역'
+            },
+            yaxis: {
+                title: 'HDI',
+                range: [0.5, 1.0]
+            },
+            template: 'plotly_white',
+            font: {
+                family: "Arial, sans-serif",
+                size: 12
+            },
+            width: 800,
+            height: 500
+        };
+
+        Plotly.newPlot('hdi-plot', [hdiData], hdiLayout);
+
+        // Policy impact plot
+        var policyData = [];
+        var colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3'];
+        var policyPlotData = {{ policy_data | tojson }};
+        var traces = [];
+
+        policyPlotData.forEach(function(regionData, i) {
+            // Add scatter plot for each region
+            var scatterTrace = {
+                type: 'scatter',
+                mode: 'markers',
+                name: regionData.region,
+                x: regionData.digital_access,
+                y: regionData.achievement,
+                marker: {
+                    color: colors[i],
+                    opacity: 0.7
+                },
+                visible: true
+            };
+            traces.push(scatterTrace);
+
+            // Calculate trend line
+            var xValues = regionData.digital_access;
+            var yValues = regionData.achievement;
+            
+            if (xValues.length > 0) {
+                // Simple linear regression
+                var xMean = xValues.reduce((a, b) => a + b) / xValues.length;
+                var yMean = yValues.reduce((a, b) => a + b) / yValues.length;
+                
+                var slope = xValues.reduce((sum, x, i) => 
+                    sum + (x - xMean) * (yValues[i] - yMean), 0
+                ) / xValues.reduce((sum, x) => 
+                    sum + Math.pow(x - xMean, 2), 0
+                );
+                
+                var intercept = yMean - slope * xMean;
+                
+                // Generate trend line points
+                var xMin = Math.min(...xValues);
+                var xMax = Math.max(...xValues);
+                var trendX = [xMin, xMax];
+                var trendY = trendX.map(x => slope * x + intercept);
+                
+                // Add trend line
+                var trendTrace = {
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: regionData.region + ' 추세선',
+                    x: trendX,
+                    y: trendY,
+                    line: {
+                        color: colors[i],
+                        dash: 'dash',
+                        width: 2
+                    },
+                    visible: true,
+                    showlegend: false
+                };
+                traces.push(trendTrace);
+            }
+        });
+
+        var policyLayout = {
+            title: '디지털 접근성과 학업 성취도의 관계: 지역별 HDI 효과',
+            xaxis: {
+                title: '디지털 접근성 지수'
+            },
+            yaxis: {
+                title: '학업 성취도'
+            },
+            template: 'plotly_white',
+            legend: {
+                title: '지역'
+            },
+            hovermode: 'closest',
+            font: {
+                family: "Arial, sans-serif",
+                size: 12
+            },
+            width: 800,
+            height: 600
+        };
+
+        Plotly.newPlot('policy-impact-plot', traces, policyLayout);
+
+        // Function to highlight a specific region
+        function highlightRegion(regionName) {
+            var update = {
+                opacity: []
+            };
+            
+            traces.forEach(function(trace, i) {
+                if (trace.name === regionName || trace.name === regionName + ' 추세선') {
+                    update.opacity.push(1);
+                } else {
+                    update.opacity.push(0.2);
+                }
+            });
+            
+            Plotly.restyle('policy-impact-plot', update);
+        }
+
+        // Function to reset all regions to visible
+        function resetHighlight() {
+            var update = {
+                opacity: traces.map(() => 1)
+            };
+            
+            Plotly.restyle('policy-impact-plot', update);
+        }
+    </script>
 </body>
 </html> 
