@@ -63,38 +63,12 @@ def chat():
         
         print(f"Received message: {user_message}")  # Debug print
         
-        # Format the prompt to get the desired response format
-        prompt = f"""You will be given a question about data. Your task is to analyze the question and present a concise summary.
+        # Format the prompt for a direct response without analysis format
+        prompt = f"""You are an AI assistant helping users analyze educational data about computer resources in schools. 
+        
+Question: {user_message}
 
-Here is the question:
-<question>
-{user_message}
-</question>
-
-To complete this task, follow these steps:
-
-1. Carefully read and analyze the provided question.
-2. Focus on the aspects that should be addressed in the response.
-3. Identify key points that answer the question.
-4. Synthesize your findings into a concise summary.
-
-You MUST format your response EXACTLY as follows:
-
-## 주요 포인트
-- Point 1: [First key point]
-- Point 2: [Second key point]
-- Point 3: [Third key point]
-
-## 데이터의 의미
-[Exactly 60 words or less about the implications of this data. Include a note that this interpretation is not absolute and may not be totally accurate.]
-
-Important reminders:
-- Base your response solely on the provided question.
-- Ensure your response directly addresses the user's question.
-- Be objective in your analysis and avoid personal opinions or speculations.
-- If the question cannot be fully answered, state this clearly in your response.
-- You MUST follow the exact format specified above with the two sections and bullet points
-- Do not add any additional sections or content beyond what is specified"""
+Please provide a clear and direct response without any special formatting or sections. Focus on answering the question with relevant facts and insights."""
 
         headers = {
             "x-api-key": API_KEY,
@@ -192,4 +166,4 @@ def get_data():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5004)
+    app.run(debug=True, port=5005)
