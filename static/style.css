@@ -1,0 +1,36 @@
+.equation {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.variables {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.variables ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.variables li {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.variables li:last-child {
+    border-bottom: none;
+}
+
+/* MathJax 스타일 조정 */
+.MathJax {
+    font-size: 1.1em !important;
+} 
