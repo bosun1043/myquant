@@ -54,7 +54,7 @@ def create_digital_accessibility_analysis():
     df['cluster_label'] = df['cluster'].map(cluster_labels)
     
     # 시각화 생성
-    plt.figure(figsize=(15, 8))
+    plt.figure(figsize=(15, 10))  # 세로 크기를 8에서 10으로 증가
     
     # 산점도 생성
     scatter = plt.scatter(df['device_coverage'], df['internet_speed'],
@@ -77,6 +77,9 @@ def create_digital_accessibility_analysis():
     ]
     plt.legend(handles=legend_elements, title='접근성 수준', fontsize=12)
     
+    # 여백 조정
+    plt.subplots_adjust(bottom=0.2)  # 아래쪽 여백을 20%로 설정
+    
     # 분석 결과 텍스트 추가
     analysis_text = (
         f"클러스터 분석 결과:\n"
@@ -84,10 +87,9 @@ def create_digital_accessibility_analysis():
         f"- 중접근성 그룹: {len(df[df['cluster'] == 1])}개 학교\n"
         f"- 고접근성 그룹: {len(df[df['cluster'] == 2])}개 학교"
     )
-    plt.figtext(0.5, 0.02, analysis_text, ha='center', fontsize=12, style='italic')
+    plt.figtext(0.5, 0.1, analysis_text, ha='center', fontsize=12, style='italic')  # y 위치를 0.1로 조정
     
     # 그래프 저장
-    plt.tight_layout()
     plt.savefig('static/data/correlation/digital_accessibility_clusters.png', dpi=300, bbox_inches='tight')
     plt.close()
     

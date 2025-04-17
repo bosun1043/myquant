@@ -9,6 +9,7 @@ import pandas as pd
 from src.claude_api import ClaudeAPI
 from src.overview_analysis import create_overview_visualizations
 from src.correlation_analysis import create_correlation_visualizations, create_digital_accessibility_analysis
+from src.policy_analysis import create_policy_analysis
 
 # Force reload environment variables
 load_dotenv(override=True)
@@ -28,7 +29,8 @@ def index():
     # 데이터 시각화 생성
     create_overview_visualizations()
     create_correlation_visualizations()
-    create_digital_accessibility_analysis()  # 디지털 접근성 분석 추가
+    create_digital_accessibility_analysis()
+    create_policy_analysis()  # 정책 분석 추가
     
     return render_template('index.html')
 
