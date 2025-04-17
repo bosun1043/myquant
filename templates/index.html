@@ -274,34 +274,60 @@
 
             <!-- 상관관계 분석 섹션 -->
             <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation-tab">
-                <div class="container mt-4">
-                    <h2 class="text-center mb-4">상관관계 분석</h2>
-                    
-                    <!-- Button Group for Correlation Analysis -->
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계</button>
-                                <button type="button" class="btn btn-outline-primary" data-visualization="accessibility">디지털 접근성</button>
+                <div class="btn-group mb-4" role="group">
+                    <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계</button>
+                    <button type="button" class="btn btn-outline-primary" data-visualization="accessibility">디지털 접근성</button>
+                </div>
+
+                <div class="visualization-section" id="correlation-visualization">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
+                                 alt="상관관계 분석" class="img-fluid">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="analysis-text">
+                                <h5>분석 결과</h5>
+                                <p>이 그래프는 2010년부터 2023년까지의 수학 성취도와 디지털 전환 간의 상관관계를 보여주고 있습니다. 상관계수(r) 값이 0.89로 매우 높은 양의 상관관계를 나타내고 있어, 디지털 전환과 수학 성취도 사이에 강한 연관성이 있음을 시사합니다.</p>
+                                
+                                <h6 class="mt-4">주요 분석 내용</h6>
+                                
+                                <h6 class="mt-3">강한 양의 상관관계(r = 0.89):</h6>
+                                <p>디지털 전환율이 높아질수록 수학 성취도도 비례하여 증가하는 경향이 뚜렷합니다. 이는 디지털 기술과 도구가 수학 학습에 긍정적인 영향을 미칠 가능성을 보여줍니다.</p>
+                                
+                                <h6 class="mt-3">시간에 따른 변화 추이:</h6>
+                                <ul>
+                                    <li>2010-2016년: 디지털 전환과 수학 성취도가 상대적으로 낮은 수준에 머물렀습니다.</li>
+                                    <li>2017년: 디지털 전환율이 약 65%로 증가하며 수학 성취도도 7% 정도로 상승하는 전환점이 관찰됩니다.</li>
+                                    <li>2018-2023년: 디지털 전환율이 70% 이상으로 크게 증가하며 수학 성취도도 11% 이상으로 빠르게 향상되었습니다.</li>
+                                </ul>
+                                
+                                <h6 class="mt-3">예외적 데이터 포인트:</h6>
+                                <ul>
+                                    <li>2015-2016년: 전반적인 추세보다 낮은 수학 성취도를 보이며, 이 시기에 디지털 전환 외 다른 요인들이 수학 성취도에 부정적 영향을 미쳤을 가능성이 있습니다.</li>
+                                    <li>2020년: 디지털 전환율(80%)에 비해 수학 성취도(13.5%)가 특히 높게 나타났습니다. 이는 코로나19 팬데믹으로 인한 원격 학습 환경에서 디지털 도구의 효과적인 활용이 이루어졌을 가능성을 시사합니다.</li>
+                                </ul>
+                                
+                                <h6 class="mt-3">신뢰 구간(붉은 음영):</h6>
+                                <p>넓은 신뢰 구간은 데이터의 변동성을 보여주지만, 전반적인 상승 추세는 확실합니다. 이는 디지털 전환과 수학 성취도 간의 관계가 우연이 아닌 통계적으로 유의미한 관계임을 나타냅니다.</p>
+                                
+                                <h6 class="mt-4">시사점</h6>
+                                
+                                <h6 class="mt-3">교육 정책적 함의:</h6>
+                                <p>디지털 도구와 인프라에 대한 투자가 수학 교육 성과 향상에 긍정적인 영향을 미칠 수 있습니다. 특히 2018년 이후 디지털 전환율이 70%를 넘어서면서 수학 성취도가 급격히 향상된 점은 의미있는 임계점을 시사합니다.</p>
+                                
+                                <h6 class="mt-3">디지털 교육 환경의 중요성:</h6>
+                                <p>그래프의 x축 레이블("디지털 전환이 높을수록 수학 성취도가 크게 향상됨")이 명시하듯, 디지털 교육 환경 구축이 학생들의 수학적 역량 개발에 중요한 요소로 작용할 수 있습니다.</p>
+                                
+                                <h6 class="mt-3">최근 트렌드(2021-2023):</h6>
+                                <p>최근 3년간 디지털 전환율은 85-90% 수준으로 안정화되었으며, 수학 성취도도 11-13% 범위에서 유지되고 있습니다. 이는 디지털 전환이 일정 수준에 도달한 후에는 추가적인 성취도 향상을 위해 다른 보완적 요소들이 필요할 수 있음을 시사합니다.</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Correlation Visualization -->
-                    <div class="row visualization-section" id="correlation-visualization">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">수학 성취도와 디지털 전환의 상관관계</h5>
-                                    <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
-                                         alt="상관관계 분석" class="img-fluid">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Digital Accessibility Visualization -->
-                    <div class="row visualization-section" id="accessibility-visualization" style="display: none;">
+                </div>
+
+                <div class="visualization-section" id="accessibility-visualization" style="display: none;">
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
