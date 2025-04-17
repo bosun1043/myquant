@@ -238,50 +238,30 @@
 
             <!-- Achievement Section -->
             <div class="tab-pane fade" id="achievement" role="tabpanel" aria-labelledby="achievement-tab">
-                <h2>학업 성취도 분석</h2>
-                
-                <!-- Button Group for Achievement Analysis -->
-                <div class="btn-group mb-4" role="group">
-                    <button type="button" class="btn btn-primary active" data-visualization="timeline">성취도 추이</button>
-                    <!-- <button type="button" class="btn btn-outline-primary" data-visualization="distribution">성취도 분포</button>
-                    <button type="button" class="btn btn-outline-primary" data-visualization="comparison">연도별 비교</button> -->
-                </div>
-
-                <!-- Achievement Visualizations -->
-                <div class="visualization-section" id="timeline-visualization" style="display: block;">
-                    <div class="row mb-4">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">중3 교과별 성취수준</h5>
-                                    <div id="achievement-chart"></div>
-                                    <div class="table-responsive mt-4">
-                                        <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>연도</th>
-                                                    <th>국어</th>
-                                                    <th>수학</th>
-                                                    <th>영어</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="achievement-data">
-                                                <!-- Data will be populated by JavaScript -->
-                                            </tbody>
-                                        </table>
-                                    </div>
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">중3 교과별 성취수준</h5>
+                                <div id="achievement-chart"></div>
+                                <div class="table-responsive mt-4">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>연도</th>
+                                                <th>국어</th>
+                                                <th>수학</th>
+                                                <th>영어</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="achievement-data">
+                                            <!-- Data will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="visualization-section" id="distribution-visualization" style="display: none;">
-                    <!-- Distribution visualization content -->
-                </div>
-
-                <div class="visualization-section" id="comparison-visualization" style="display: none;">
-                    <!-- Comparison visualization content -->
                 </div>
             </div>
 
