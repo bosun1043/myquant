@@ -280,47 +280,76 @@
                 </div>
 
                 <div class="visualization-section" id="correlation-visualization">
-                    <div class="row">
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
-                                 alt="상관관계 분석" class="img-fluid">
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">수학 성취도와 디지털 전환의 상관관계</h5>
+                                    <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
+                                         alt="상관관계 분석" class="img-fluid rounded">
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="analysis-text">
-                                <h5>분석 결과</h5>
-                                <p>이 그래프는 2010년부터 2023년까지의 수학 성취도와 디지털 전환 간의 상관관계를 보여주고 있습니다. 상관계수(r) 값이 0.89로 매우 높은 양의 상관관계를 나타내고 있어, 디지털 전환과 수학 성취도 사이에 강한 연관성이 있음을 시사합니다.</p>
-                                
-                                <h6 class="mt-4">주요 분석 내용</h6>
-                                
-                                <h6 class="mt-3">강한 양의 상관관계(r = 0.89):</h6>
-                                <p>디지털 전환율이 높아질수록 수학 성취도도 비례하여 증가하는 경향이 뚜렷합니다. 이는 디지털 기술과 도구가 수학 학습에 긍정적인 영향을 미칠 가능성을 보여줍니다.</p>
-                                
-                                <h6 class="mt-3">시간에 따른 변화 추이:</h6>
-                                <ul>
-                                    <li>2010-2016년: 디지털 전환과 수학 성취도가 상대적으로 낮은 수준에 머물렀습니다.</li>
-                                    <li>2017년: 디지털 전환율이 약 65%로 증가하며 수학 성취도도 7% 정도로 상승하는 전환점이 관찰됩니다.</li>
-                                    <li>2018-2023년: 디지털 전환율이 70% 이상으로 크게 증가하며 수학 성취도도 11% 이상으로 빠르게 향상되었습니다.</li>
-                                </ul>
-                                
-                                <h6 class="mt-3">예외적 데이터 포인트:</h6>
-                                <ul>
-                                    <li>2015-2016년: 전반적인 추세보다 낮은 수학 성취도를 보이며, 이 시기에 디지털 전환 외 다른 요인들이 수학 성취도에 부정적 영향을 미쳤을 가능성이 있습니다.</li>
-                                    <li>2020년: 디지털 전환율(80%)에 비해 수학 성취도(13.5%)가 특히 높게 나타났습니다. 이는 코로나19 팬데믹으로 인한 원격 학습 환경에서 디지털 도구의 효과적인 활용이 이루어졌을 가능성을 시사합니다.</li>
-                                </ul>
-                                
-                                <h6 class="mt-3">신뢰 구간(붉은 음영):</h6>
-                                <p>넓은 신뢰 구간은 데이터의 변동성을 보여주지만, 전반적인 상승 추세는 확실합니다. 이는 디지털 전환과 수학 성취도 간의 관계가 우연이 아닌 통계적으로 유의미한 관계임을 나타냅니다.</p>
-                                
-                                <h6 class="mt-4">시사점</h6>
-                                
-                                <h6 class="mt-3">교육 정책적 함의:</h6>
-                                <p>디지털 도구와 인프라에 대한 투자가 수학 교육 성과 향상에 긍정적인 영향을 미칠 수 있습니다. 특히 2018년 이후 디지털 전환율이 70%를 넘어서면서 수학 성취도가 급격히 향상된 점은 의미있는 임계점을 시사합니다.</p>
-                                
-                                <h6 class="mt-3">디지털 교육 환경의 중요성:</h6>
-                                <p>그래프의 x축 레이블("디지털 전환이 높을수록 수학 성취도가 크게 향상됨")이 명시하듯, 디지털 교육 환경 구축이 학생들의 수학적 역량 개발에 중요한 요소로 작용할 수 있습니다.</p>
-                                
-                                <h6 class="mt-3">최근 트렌드(2021-2023):</h6>
-                                <p>최근 3년간 디지털 전환율은 85-90% 수준으로 안정화되었으며, 수학 성취도도 11-13% 범위에서 유지되고 있습니다. 이는 디지털 전환이 일정 수준에 도달한 후에는 추가적인 성취도 향상을 위해 다른 보완적 요소들이 필요할 수 있음을 시사합니다.</p>
+                            <div class="card shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-4">분석 결과</h5>
+                                    <div class="analysis-text pe-2" style="height: calc(100vh - 250px); overflow-y: auto;">
+                                        <div class="overview mb-4">
+                                            <p class="lead">이 그래프는 2010년부터 2023년까지의 수학 성취도와 디지털 전환 간의 상관관계를 보여주고 있습니다. 상관계수(r) 값이 0.89로 매우 높은 양의 상관관계를 나타내고 있어, 디지털 전환과 수학 성취도 사이에 강한 연관성이 있음을 시사합니다.</p>
+                                        </div>
+                                        
+                                        <div class="analysis-section">
+                                            <h6 class="section-title fw-bold mb-3">주요 분석 내용</h6>
+                                            
+                                            <div class="subsection mb-4">
+                                                <h6 class="text-primary">강한 양의 상관관계(r = 0.89)</h6>
+                                                <p>디지털 전환율이 높아질수록 수학 성취도도 비례하여 증가하는 경향이 뚜렷합니다. 이는 디지털 기술과 도구가 수학 학습에 긍정적인 영향을 미칠 가능성을 보여줍니다.</p>
+                                            </div>
+                                            
+                                            <div class="subsection mb-4">
+                                                <h6 class="text-primary">시간에 따른 변화 추이</h6>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="mb-2">• 2010-2016년: 디지털 전환과 수학 성취도가 상대적으로 낮은 수준에 머물렀습니다.</li>
+                                                    <li class="mb-2">• 2017년: 디지털 전환율이 약 65%로 증가하며 수학 성취도도 7% 정도로 상승하는 전환점이 관찰됩니다.</li>
+                                                    <li>• 2018-2023년: 디지털 전환율이 70% 이상으로 크게 증가하며 수학 성취도도 11% 이상으로 빠르게 향상되었습니다.</li>
+                                                </ul>
+                                            </div>
+                                            
+                                            <div class="subsection mb-4">
+                                                <h6 class="text-primary">예외적 데이터 포인트</h6>
+                                                <ul class="list-unstyled ps-3">
+                                                    <li class="mb-2">• 2015-2016년: 전반적인 추세보다 낮은 수학 성취도를 보이며, 이 시기에 디지털 전환 외 다른 요인들이 수학 성취도에 부정적 영향을 미쳤을 가능성이 있습니다.</li>
+                                                    <li>• 2020년: 디지털 전환율(80%)에 비해 수학 성취도(13.5%)가 특히 높게 나타났습니다. 이는 코로나19 팬데믹으로 인한 원격 학습 환경에서 디지털 도구의 효과적인 활용이 이루어졌을 가능성을 시사합니다.</li>
+                                                </ul>
+                                            </div>
+                                            
+                                            <div class="subsection mb-4">
+                                                <h6 class="text-primary">신뢰 구간(붉은 음영)</h6>
+                                                <p>넓은 신뢰 구간은 데이터의 변동성을 보여주지만, 전반적인 상승 추세는 확실합니다. 이는 디지털 전환과 수학 성취도 간의 관계가 우연이 아닌 통계적으로 유의미한 관계임을 나타냅니다.</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="analysis-section">
+                                            <h6 class="section-title fw-bold mb-3">시사점</h6>
+                                            
+                                            <div class="subsection mb-4">
+                                                <h6 class="text-primary">교육 정책적 함의</h6>
+                                                <p>디지털 도구와 인프라에 대한 투자가 수학 교육 성과 향상에 긍정적인 영향을 미칠 수 있습니다. 특히 2018년 이후 디지털 전환율이 70%를 넘어서면서 수학 성취도가 급격히 향상된 점은 의미있는 임계점을 시사합니다.</p>
+                                            </div>
+                                            
+                                            <div class="subsection mb-4">
+                                                <h6 class="text-primary">디지털 교육 환경의 중요성</h6>
+                                                <p>그래프의 x축 레이블("디지털 전환이 높을수록 수학 성취도가 크게 향상됨")이 명시하듯, 디지털 교육 환경 구축이 학생들의 수학적 역량 개발에 중요한 요소로 작용할 수 있습니다.</p>
+                                            </div>
+                                            
+                                            <div class="subsection">
+                                                <h6 class="text-primary">최근 트렌드(2021-2023)</h6>
+                                                <p>최근 3년간 디지털 전환율은 85-90% 수준으로 안정화되었으며, 수학 성취도도 11-13% 범위에서 유지되고 있습니다. 이는 디지털 전환이 일정 수준에 도달한 후에는 추가적인 성취도 향상을 위해 다른 보완적 요소들이 필요할 수 있음을 시사합니다.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -329,18 +358,18 @@
                 <div class="visualization-section" id="accessibility-visualization" style="display: none;">
                     <div class="row">
                         <div class="col-md-12">
-                            <div class="card">
+                            <div class="card shadow-sm">
                                 <div class="card-body">
-                                    <h5 class="card-title">학교별 디지털 접근성 클러스터링</h5>
+                                    <h5 class="card-title mb-4">학교별 디지털 접근성 클러스터링</h5>
                                     <img src="{{ url_for('static', filename='data/correlation/digital_accessibility_clusters.png') }}" 
-                                         alt="디지털 접근성 클러스터링" class="img-fluid">
+                                         alt="디지털 접근성 클러스터링" class="img-fluid rounded">
                                     <div class="mt-4">
-                                        <h6>분석 결과 요약</h6>
+                                        <h6 class="fw-bold mb-3">분석 결과 요약</h6>
                                         <p>디지털 접근성 지수는 다음과 같은 요소들의 가중 합으로 계산됩니다:</p>
-                                        <ul>
-                                            <li>기기 보급률 (40%)</li>
-                                            <li>인터넷 속도 (30%)</li>
-                                            <li>소프트웨어 접근성 (30%)</li>
+                                        <ul class="list-unstyled ps-3">
+                                            <li class="mb-2">• 기기 보급률 (40%)</li>
+                                            <li class="mb-2">• 인터넷 속도 (30%)</li>
+                                            <li class="mb-2">• 소프트웨어 접근성 (30%)</li>
                                         </ul>
                                         <p>K-평균 클러스터링을 통해 학교를 저·중·고 접근성 그룹으로 분류했습니다.</p>
                                     </div>
@@ -350,6 +379,56 @@
                     </div>
                 </div>
             </div>
+
+            <style>
+            .section-title {
+                color: #2c3e50;
+                border-bottom: 2px solid #3498db;
+                padding-bottom: 0.5rem;
+                margin-top: 1.5rem;
+            }
+            
+            .text-primary {
+                color: #3498db !important;
+            }
+            
+            .lead {
+                font-size: 1.1rem;
+                color: #2c3e50;
+            }
+            
+            .list-unstyled li {
+                position: relative;
+                color: #34495e;
+            }
+            
+            .card {
+                border: none;
+                border-radius: 10px;
+            }
+            
+            .shadow-sm {
+                box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+            }
+            
+            .analysis-text::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .analysis-text::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+            }
+            
+            .analysis-text::-webkit-scrollbar-thumb {
+                background: #3498db;
+                border-radius: 3px;
+            }
+            
+            .analysis-text::-webkit-scrollbar-thumb:hover {
+                background: #2980b9;
+            }
+            </style>
 
             <!-- 정책 효과 섹션 -->
             <div class="tab-pane fade" id="policy" role="tabpanel" aria-labelledby="policy-tab">
@@ -380,16 +459,25 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">지역별 HDI와 디지털 접근성의 상호작용 효과</h5>
-                                    <img src="{{ url_for('static', filename='data/policy/policy_impact.png') }}" 
-                                         alt="정책 효과 분석" class="img-fluid">
-                                    <div class="mt-3">
-                                        <h6>분석 결과 해석</h6>
-                                        <ul>
-                                            <li>디지털 접근성이 높을수록 학업 성취도가 향상됨 (β₁ > 0)</li>
-                                            <li>지역의 HDI가 높을수록 기본 성취도가 높음 (β₂ > 0)</li>
-                                            <li>HDI가 높은 지역일수록 디지털 접근성 향상의 효과가 더 큼 (β₃ > 0)</li>
+                                <div class="card-body p-4">
+                                    <h5 class="card-title mb-4">지역별 HDI와 디지털 접근성의 상호작용 효과</h5>
+                                    <!-- 지역 선택 버튼 그룹 -->
+                                    <div class="btn-group mb-4" role="group" aria-label="지역 선택">
+                                        <button type="button" class="btn btn-primary active" data-region="all">전체 지역</button>
+                                        <button type="button" class="btn btn-outline-primary" data-region="1">지역 1</button>
+                                        <button type="button" class="btn btn-outline-primary" data-region="2">지역 2</button>
+                                        <button type="button" class="btn btn-outline-primary" data-region="3">지역 3</button>
+                                        <button type="button" class="btn btn-outline-primary" data-region="4">지역 4</button>
+                                        <button type="button" class="btn btn-outline-primary" data-region="5">지역 5</button>
+                                    </div>
+                                    <!-- Plotly 그래프 컨테이너 -->
+                                    <div id="policy-impact-plot" style="width: 100%; height: 700px;" class="mb-4"></div>
+                                    <div class="mt-4">
+                                        <h6 class="fw-bold">분석 결과 해석</h6>
+                                        <ul class="list-unstyled ps-3">
+                                            <li class="mb-2">• 디지털 접근성이 높을수록 학업 성취도가 향상됨 (β₁ > 0)</li>
+                                            <li class="mb-2">• 지역의 HDI가 높을수록 기본 성취도가 높음 (β₂ > 0)</li>
+                                            <li class="mb-2">• HDI가 높은 지역일수록 디지털 접근성 향상의 효과가 더 큼 (β₃ > 0)</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -398,6 +486,130 @@
                     </div>
                 </div>
             </div>
+
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // 가상의 데이터 생성 (실제 데이터로 대체 필요)
+                const regions = [1, 2, 3, 4, 5];
+                const traces = [];
+                
+                // 각 지역별 데이터 생성
+                regions.forEach(region => {
+                    const digitalAccess = Array.from({length: 50}, () => Math.random() * 100);
+                    const achievement = digitalAccess.map(x => 
+                        50 + 0.3 * x + region * 5 + (Math.random() - 0.5) * 10
+                    );
+                    
+                    traces.push({
+                        x: digitalAccess,
+                        y: achievement,
+                        mode: 'markers',
+                        type: 'scatter',
+                        name: `지역 ${region}`,
+                        marker: {
+                            size: 10,
+                            opacity: 0.7
+                        },
+                        visible: true
+                    });
+
+                    // 회귀선 추가
+                    const xRange = [Math.min(...digitalAccess), Math.max(...digitalAccess)];
+                    const yPred = xRange.map(x => 50 + 0.3 * x + region * 5);
+                    
+                    traces.push({
+                        x: xRange,
+                        y: yPred,
+                        mode: 'lines',
+                        type: 'scatter',
+                        name: `지역 ${region} 추세선`,
+                        line: {
+                            dash: 'dot',
+                            width: 2
+                        },
+                        visible: true
+                    });
+                });
+
+                const layout = {
+                    title: {
+                        text: '디지털 접근성과 학업 성취도의 관계',
+                        font: {
+                            size: 24
+                        }
+                    },
+                    xaxis: {
+                        title: {
+                            text: '디지털 접근성 지수',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        zeroline: false,
+                        tickfont: {
+                            size: 14
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: '학업 성취도',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        zeroline: false,
+                        tickfont: {
+                            size: 14
+                        }
+                    },
+                    hovermode: 'closest',
+                    showlegend: true,
+                    legend: {
+                        x: 1,
+                        xanchor: 'right',
+                        y: 1,
+                        font: {
+                            size: 14
+                        }
+                    },
+                    margin: {
+                        l: 80,
+                        r: 50,
+                        t: 100,
+                        b: 80
+                    }
+                };
+
+                Plotly.newPlot('policy-impact-plot', traces, layout);
+
+                // 지역 선택 버튼 이벤트 처리
+                document.querySelectorAll('[data-region]').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const selectedRegion = this.dataset.region;
+                        
+                        // 버튼 스타일 업데이트
+                        document.querySelectorAll('[data-region]').forEach(btn => {
+                            btn.classList.remove('active');
+                            btn.classList.replace('btn-primary', 'btn-outline-primary');
+                        });
+                        this.classList.add('active');
+                        this.classList.replace('btn-outline-primary', 'btn-primary');
+
+                        // 데이터 가시성 업데이트
+                        const updatedTraces = traces.map((trace, index) => {
+                            if (selectedRegion === 'all') {
+                                return { visible: true };
+                            } else {
+                                const traceRegion = Math.ceil((index + 1) / 2);
+                                return { visible: traceRegion === parseInt(selectedRegion) };
+                            }
+                        });
+
+                        Plotly.update('policy-impact-plot', { visible: updatedTraces.map(t => t.visible) });
+                    });
+                });
+            });
+            </script>
 
             <!-- AI 채팅 섹션 -->
             <div class="tab-pane fade" id="ai-chat" role="tabpanel" aria-labelledby="ai-chat-tab">
