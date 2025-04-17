@@ -697,9 +697,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const subjectData = {
                 years: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
                 국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
-                // 사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
-                과학: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
             };
 
@@ -715,24 +713,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 {
                     x: subjectData.years,
-                    y: subjectData.사회,
-                    name: '사회',
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    line: { width: 2 }
-                },
-                {
-                    x: subjectData.years,
                     y: subjectData.수학,
                     name: '수학',
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    line: { width: 2 }
-                },
-                {
-                    x: subjectData.years,
-                    y: subjectData.과학,
-                    name: '과학',
                     type: 'scatter',
                     mode: 'lines+markers',
                     line: { width: 2 }
@@ -947,7 +929,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const subjectData = {
                 years: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
                 국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
-                사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
                 영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
             };
@@ -958,14 +939,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     x: subjectData.years,
                     y: subjectData.국어,
                     name: '국어',
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    line: { width: 2 }
-                },
-                {
-                    x: subjectData.years,
-                    y: subjectData.사회,
-                    name: '사회',
                     type: 'scatter',
                     mode: 'lines+markers',
                     line: { width: 2 }
@@ -1028,7 +1001,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     row.innerHTML = `
                         <td>${year}</td>
                         <td>${subjectData.국어[index].toFixed(1)}%</td>
-                        <td>${subjectData.사회[index].toFixed(1)}%</td>
                         <td>${subjectData.수학[index].toFixed(1)}%</td>
                         <td>${subjectData.영어[index].toFixed(1)}%</td>
                     `;
