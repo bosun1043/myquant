@@ -208,67 +208,86 @@
                     <button type="button" class="btn btn-outline-primary" data-visualization="usage">자원 활용도</button>
                 </div>
 
-                <!-- Timeline Visualization -->
-                <div class="row visualization-section" id="timeline-visualization" style="display: block;">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">학업 성취도 변화 추이</h5>
-                                <div id="achievement-timeline" class="timeline-container">
-                                    <!-- Timeline will be populated by JavaScript -->
+                <!-- Achievement Visualizations Container -->
+                <div class="achievement-visualizations">
+                    <!-- Timeline Visualization -->
+                    <div class="visualization-section" id="timeline-visualization" style="display: block;">
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">중3 교과별 성취수준</h5>
+                                        <div id="achievement-chart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">학업 성취도 변화 추이</h5>
+                                        <div id="achievement-timeline" class="timeline-container">
+                                            <!-- Timeline will be populated by JavaScript -->
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Infrastructure Visualization -->
-                <div class="row visualization-section" id="infra-visualization" style="display: none;">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">디지털 인프라 구성</h5>
-                                <div id="digitalInfraChart"></div>
-                                <div class="data-table">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>구분</th>
-                                                <th>컴퓨터</th>
-                                                <th>인터넷</th>
-                                                <th>스마트교실</th>
-                                                <th>디지털교과서</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="infra-data">
-                                        </tbody>
-                                    </table>
+                    <!-- Infrastructure Visualization -->
+                    <div class="visualization-section" id="infra-visualization" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">디지털 인프라 구성</h5>
+                                        <div id="digitalInfraChart"></div>
+                                        <div class="data-table">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>구분</th>
+                                                        <th>컴퓨터</th>
+                                                        <th>인터넷</th>
+                                                        <th>스마트교실</th>
+                                                        <th>디지털교과서</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="infra-data">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Usage Visualization -->
-                <div class="row visualization-section" id="usage-visualization" style="display: none;">
-                    <div class="col-md-12">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">디지털 자원 활용도</h5>
-                                <div id="digitalUsageChart"></div>
-                                <div class="data-table">
-                                    <table class="table table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>구분</th>
-                                                <th>수업활용</th>
-                                                <th>학생활용</th>
-                                                <th>교사활용</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="usage-data">
-                                        </tbody>
-                                    </table>
+                    <!-- Usage Visualization -->
+                    <div class="visualization-section" id="usage-visualization" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5 class="card-title">디지털 자원 활용도</h5>
+                                        <div id="digitalUsageChart"></div>
+                                        <div class="data-table">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>구분</th>
+                                                        <th>수업활용</th>
+                                                        <th>학생활용</th>
+                                                        <th>교사활용</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="usage-data">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

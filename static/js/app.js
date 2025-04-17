@@ -686,6 +686,88 @@ document.addEventListener('DOMContentLoaded', function() {
             const timelineContainer = document.getElementById('achievement-timeline');
             if (!timelineContainer) return;
 
+            // Create subject achievement chart
+            const subjectData = {
+                years: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
+                국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
+                사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
+                과학: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
+            };
+
+            // Create traces for each subject
+            const traces = [
+                {
+                    x: subjectData.years,
+                    y: subjectData.국어,
+                    name: '국어',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.사회,
+                    name: '사회',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.수학,
+                    name: '수학',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.과학,
+                    name: '과학',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.영어,
+                    name: '영어',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                }
+            ];
+
+            const layout = {
+                title: '중3 교과별 성취수준 (%)',
+                xaxis: {
+                    title: '연도',
+                    tickangle: -45
+                },
+                yaxis: {
+                    title: '성취수준 (%)',
+                    range: [0, 15]
+                },
+                showlegend: true,
+                legend: {
+                    x: 1,
+                    xanchor: 'right',
+                    y: 1
+                },
+                margin: {
+                    l: 50,
+                    r: 50,
+                    b: 100,
+                    t: 50,
+                    pad: 4
+                }
+            };
+
+            Plotly.newPlot('achievement-chart', traces, layout);
+
+            // Rest of the timeline code...
             let html = '<div class="timeline">';
             html += '<h3>중학교 성취도 변화</h3>';
             html += '<table class="table table-striped">';
@@ -741,17 +823,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (targetSection) {
                 targetSection.style.display = 'block';
                 
-                // Load specific data based on visualization type
-                switch(type) {
-                    case 'timeline':
-                        this.createAchievementTimeline();
-                        break;
-                    case 'infra':
-                        this.createDigitalInfraChart();
-                        break;
-                    case 'usage':
-                        this.createDigitalUsageChart();
-                        break;
+                // If this is the timeline visualization, create the achievement chart
+                if (type === 'timeline') {
+                    this.createAchievementChart();
                 }
             }
         }
@@ -861,8 +935,99 @@ document.addEventListener('DOMContentLoaded', function() {
 
             Plotly.newPlot('digitalUsageChart', traces, layout);
         }
+
+        createAchievementChart() {
+            const subjectData = {
+                years: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
+                국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
+                사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
+                과학: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
+            };
+
+            const traces = [
+                {
+                    x: subjectData.years,
+                    y: subjectData.국어,
+                    name: '국어',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.사회,
+                    name: '사회',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.수학,
+                    name: '수학',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.과학,
+                    name: '과학',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                },
+                {
+                    x: subjectData.years,
+                    y: subjectData.영어,
+                    name: '영어',
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { width: 2 }
+                }
+            ];
+
+            const layout = {
+                title: '중3 교과별 성취수준 (%)',
+                xaxis: {
+                    title: '연도',
+                    tickangle: -45
+                },
+                yaxis: {
+                    title: '성취수준 (%)',
+                    range: [0, 15]
+                },
+                showlegend: true,
+                legend: {
+                    x: 1,
+                    xanchor: 'right',
+                    y: 1
+                },
+                margin: {
+                    l: 50,
+                    r: 50,
+                    b: 100,
+                    t: 50,
+                    pad: 4
+                }
+            };
+
+            Plotly.newPlot('achievement-chart', traces, layout);
+        }
     }
 
     // Initialize dashboard
     const dashboard = new EducationDashboard();
+
+    // Create initial achievement chart when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const achievementTab = document.getElementById('achievement-tab');
+        if (achievementTab) {
+            achievementTab.addEventListener('shown.bs.tab', function() {
+                dashboard.createAchievementChart();
+            });
+        }
+    });
 });
