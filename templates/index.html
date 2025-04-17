@@ -249,26 +249,49 @@
             <!-- 상관관계 분석 섹션 -->
             <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation-tab">
                 <div class="container mt-4">
-                    <h2 class="text-center mb-4">디지털 자원과 성취도 상관관계</h2>
+                    <h2 class="text-center mb-4">상관관계 분석</h2>
                     
                     <!-- Button Group for Correlation Analysis -->
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계 분석</button>
-                                <button type="button" class="btn btn-outline-primary" data-visualization="regression">회귀 분석</button>
+                                <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계</button>
+                                <button type="button" class="btn btn-outline-primary" data-visualization="accessibility">디지털 접근성</button>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Correlation Visualization -->
-                    <div class="row">
+                    <div class="row visualization-section" id="correlation-visualization">
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">디지털 자원과 학업 성취도 상관관계</h5>
+                                    <h5 class="card-title">수학 성취도와 디지털 전환의 상관관계</h5>
                                     <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
-                                         alt="디지털 자원과 학업 성취도 상관관계" class="img-fluid">
+                                         alt="상관관계 분석" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Digital Accessibility Visualization -->
+                    <div class="row visualization-section" id="accessibility-visualization" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">학교별 디지털 접근성 클러스터링</h5>
+                                    <img src="{{ url_for('static', filename='data/correlation/digital_accessibility_clusters.png') }}" 
+                                         alt="디지털 접근성 클러스터링" class="img-fluid">
+                                    <div class="mt-4">
+                                        <h6>분석 결과 요약</h6>
+                                        <p>디지털 접근성 지수는 다음과 같은 요소들의 가중 합으로 계산됩니다:</p>
+                                        <ul>
+                                            <li>기기 보급률 (40%)</li>
+                                            <li>인터넷 속도 (30%)</li>
+                                            <li>소프트웨어 접근성 (30%)</li>
+                                        </ul>
+                                        <p>K-평균 클러스터링을 통해 학교를 저·중·고 접근성 그룹으로 분류했습니다.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -281,63 +304,43 @@
                 <div class="container mt-4">
                     <h2 class="text-center mb-4">정책 효과 분석</h2>
                     
-                    <!-- Button Group for Policy Analysis -->
+                    <!-- 정책 효과 설명 -->
                     <div class="row mb-4">
                         <div class="col-md-12">
-                            <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary active" data-visualization="policy">정책 효과</button>
-                                <button type="button" class="btn btn-outline-primary" data-visualization="impact">영향 분석</button>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">다층 선형 회귀 모델 (HLM) 분석</h5>
+                                    <p class="card-text">
+                                        저접근성 학교에 태블릿, 컴퓨터, 고속 인터넷을 보급한 정책의 효과를 분석했습니다. 
+                                        지역별 HDI(Human Development Index)와 디지털 접근성 지수의 상호작용을 고려한 
+                                        다층 선형 회귀 모델(HLM, Hierarchical Linear Model)을 사용하여 최적 배분을 도출했습니다.
+                                    </p>
+                                    <p class="card-text">
+                                        <strong>모델 수식:</strong><br>
+                                        \[Y_{ij} = \beta_0 + \beta_1 \cdot \text{DigitalAccess}_{ij} + \beta_2 \cdot \text{HDI}_j + 
+                                        \beta_3 \cdot (\text{DigitalAccess}_{ij} \times \text{HDI}_j) + u_j + \epsilon_{ij}\]
+                                        여기서 \(Y_{ij}\)는 학교 i의 수학 성취도, j는 지역을 나타냅니다.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Policy Visualization -->
+                    <!-- 시각화 -->
                     <div class="row">
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">정책 효과 분석</h5>
+                                    <h5 class="card-title">지역별 HDI와 디지털 접근성의 상호작용 효과</h5>
                                     <img src="{{ url_for('static', filename='data/policy/policy_impact.png') }}" 
-                                         alt="정책 효과 분석" class="img-fluid mb-4">
-                                    
-                                    <!-- 정책 제안 1 -->
-                                    <div class="policy-section mb-4">
-                                        <h4 class="mb-3">1. 지역별 디지털 인프라 균등화 지원 정책</h4>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">정책 내용</h5>
-                                                <p class="card-text">
-                                                    경제 발전 수준(HDI, GDP)이 낮은 지역의 학교를 대상으로 디지털 기기(태블릿, 컴퓨터)와 고속 인터넷 인프라를 우선적으로 보급한다. 
-                                                    공공데이터포털과 학교알리미 데이터를 활용해 디지털 인프라가 부족한 학교를 자동 식별하고, 정부 예산을 통해 맞춤형 지원을 제공한다. 
-                                                    또한, OpenAI 기반 대시보드를 통해 지원 후 디지털 접근성과 수학 성취도 변화를 실시간 모니터링한다.
-                                                </p>
-                                                <h5 class="card-title mt-3">기대 효과</h5>
-                                                <p class="card-text">
-                                                    디지털 자원 접근성 불균형을 줄이고, PISA/TIMSS 데이터에서 확인된 디지털 접근성과 수학 성취도 간 상관관계를 강화해 교육 형평성을 제고한다. 
-                                                    특히 경제적으로 취약한 지역 학생들의 학업 성취도 향상에 기여한다.
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 정책 제안 2 -->
-                                    <div class="policy-section">
-                                        <h4 class="mb-3">2. AI 기반 맞춤형 디지털 학습 소프트웨어 보급 및 교사 연수 정책</h4>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">정책 내용</h5>
-                                                <p class="card-text">
-                                                    분석 결과 수학 성취도에 가장 큰 영향을 미치는 디지털 자원(예: AI 디지털 교과서, 적응형 학습 소프트웨어)을 초·중·고교에 단계적으로 보급한다. 
-                                                    Cursor를 활용한 자연어 명령으로 소프트웨어 효과를 분석하고, 최적의 학습 콘텐츠를 추천한다. 
-                                                    동시에 교사 대상 디지털 리터러시 및 소프트웨어 활용 연수를 강화해 디지털 자원의 효과적 사용을 촉진한다.
-                                                </p>
-                                                <h5 class="card-title mt-3">기대 효과</h5>
-                                                <p class="card-text">
-                                                    학생의 자기주도적 학습을 촉진하고, 데이터 기반으로 식별된 효과적인 디지털 자원을 통해 수학 성취도를 높인다. 
-                                                    교사 역량 강화는 디지털 교육의 지속 가능성을 확보한다.
-                                                </p>
-                                            </div>
-                                        </div>
+                                         alt="정책 효과 분석" class="img-fluid">
+                                    <div class="mt-3">
+                                        <h6>분석 결과 해석</h6>
+                                        <ul>
+                                            <li>디지털 접근성이 높을수록 학업 성취도가 향상됨 (β₁ > 0)</li>
+                                            <li>지역의 HDI가 높을수록 기본 성취도가 높음 (β₂ > 0)</li>
+                                            <li>HDI가 높은 지역일수록 디지털 접근성 향상의 효과가 더 큼 (β₃ > 0)</li>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

@@ -7,6 +7,9 @@ import time
 from src.analyze_data import load_all_csv_data, analyze_data
 import pandas as pd
 from src.claude_api import ClaudeAPI
+from src.overview_analysis import create_overview_visualizations
+from src.correlation_analysis import create_correlation_visualizations, create_digital_accessibility_analysis
+from src.policy_analysis import create_policy_analysis
 
 # Force reload environment variables
 load_dotenv(override=True)
@@ -23,6 +26,12 @@ print(f"API Key first 5 chars: {API_KEY[:5] if API_KEY else 'None'}")
 
 @app.route('/')
 def index():
+    # 데이터 시각화 생성
+    create_overview_visualizations()
+    create_correlation_visualizations()
+    create_digital_accessibility_analysis()
+    create_policy_analysis()  # 정책 분석 추가
+    
     return render_template('index.html')
 
 # 데이터 파일 제공을 위한 라우트

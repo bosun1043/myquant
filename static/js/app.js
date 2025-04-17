@@ -1070,4 +1070,30 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('achievement').style.display !== 'none') {
         createAchievementChart();
     }
+
+    // 상관관계 분석 섹션 버튼 이벤트
+    document.querySelectorAll('[data-visualization]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('[data-visualization]').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline-primary');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            this.classList.remove('btn-outline-primary');
+            this.classList.add('btn-primary');
+            
+            // Hide all visualization sections
+            document.querySelectorAll('.visualization-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected visualization
+            const visualizationId = this.getAttribute('data-visualization') + '-visualization';
+            document.getElementById(visualizationId).style.display = 'block';
+        });
+    });
 });
