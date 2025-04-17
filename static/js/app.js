@@ -3,18 +3,104 @@ document.addEventListener('DOMContentLoaded', function() {
     var triggerTabList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tab"]'))
     triggerTabList.forEach(function(triggerEl) {
         var tabTrigger = new bootstrap.Tab(triggerEl)
-        triggerEl.addEventListener('click', function(event) {
-            event.preventDefault()
-            tabTrigger.show()
-
-            // If achievement tab is clicked, initialize the chart
-            if (triggerEl.getAttribute('id') === 'achievement-tab') {
-                setTimeout(() => {
-                    createAchievementChart();
-                }, 100);
+        
+        // Add shown.bs.tab event listener
+        triggerEl.addEventListener('shown.bs.tab', function(event) {
+            if (event.target.id === 'achievement-tab') {
+                setTimeout(createAchievementChart, 100);
             }
-        })
-    })
+        });
+    });
+
+    // Create achievement chart function
+    function createAchievementChart() {
+        const subjectData = {
+            years: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
+            국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
+            수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
+            영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
+        };
+
+        const traces = [
+            {
+                x: subjectData.years,
+                y: subjectData.국어,
+                name: '국어',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { width: 2 }
+            },
+            {
+                x: subjectData.years,
+                y: subjectData.수학,
+                name: '수학',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { width: 2 }
+            },
+            {
+                x: subjectData.years,
+                y: subjectData.영어,
+                name: '영어',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { width: 2 }
+            }
+        ];
+
+        const layout = {
+            title: '중3 교과별 성취수준 (%)',
+            xaxis: {
+                title: '연도',
+                tickangle: -45
+            },
+            yaxis: {
+                title: '성취수준 (%)',
+                range: [0, 15]
+            },
+            showlegend: true,
+            legend: {
+                x: 1,
+                xanchor: 'right',
+                y: 1
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                b: 100,
+                t: 50,
+                pad: 4
+            },
+            width: 800,
+            height: 500
+        };
+
+        const chartDiv = document.getElementById('achievement-chart');
+        if (chartDiv) {
+            Plotly.newPlot('achievement-chart', traces, layout);
+
+            // Populate the table
+            const tbody = document.getElementById('achievement-data');
+            if (tbody) {
+                tbody.innerHTML = ''; // Clear existing content
+                subjectData.years.forEach((year, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${year}</td>
+                        <td>${subjectData.국어[index].toFixed(1)}%</td>
+                        <td>${subjectData.수학[index].toFixed(1)}%</td>
+                        <td>${subjectData.영어[index].toFixed(1)}%</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+    }
+
+    // Create chart if achievement tab is initially active
+    if (document.querySelector('#achievement-tab.active')) {
+        setTimeout(createAchievementChart, 100);
+    }
 
     // Overview tab visualization buttons
     const visualizationButtons = document.querySelectorAll('.visualization-btn');
@@ -487,42 +573,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Load achievement data
-    fetch('/static/data/grade/middle_school_comparison.csv')
-        .then(response => response.text())
-        .then(data => {
-            const rows = data.split('\n');
-            const headers = rows[0].split(',');
-            
-            // Create timeline visualization
-            const timelineContainer = document.getElementById('achievement-timeline');
-            if (timelineContainer) {
-                let timelineHTML = '<div class="timeline">';
-                
-                // Skip header row
-                for (let i = 1; i < rows.length; i++) {
-                    const cells = rows[i].split(',');
-                    if (cells.length > 1) {
-                        timelineHTML += `
-                            <div class="timeline-item">
-                                <div class="timeline-year">${cells[0]}</div>
-                                <div class="timeline-content">
-                                    <h4>${cells[2]}</h4>
-                                    <p>${cells[3]}</p>
-                                </div>
-                            </div>
-                        `;
-                    }
-                }
-                
-                timelineHTML += '</div>';
-                timelineContainer.innerHTML = timelineHTML;
-            }
-        })
-        .catch(error => {
-            console.error('Error loading achievement data:', error);
-        });
-
     // Digital Resources tab visualization buttons
     const digitalResourceButtons = document.querySelectorAll('#digital-resources .btn-group .btn');
     digitalResourceButtons.forEach(button => {
@@ -990,22 +1040,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const chartDiv = document.getElementById('achievement-chart');
             if (chartDiv) {
                 Plotly.newPlot('achievement-chart', traces, layout);
-            }
 
-            // Populate the table
-            const tbody = document.getElementById('achievement-data');
-            if (tbody) {
-                tbody.innerHTML = ''; // Clear existing content
-                subjectData.years.forEach((year, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${year}</td>
-                        <td>${subjectData.국어[index].toFixed(1)}%</td>
-                        <td>${subjectData.수학[index].toFixed(1)}%</td>
-                        <td>${subjectData.영어[index].toFixed(1)}%</td>
-                    `;
-                    tbody.appendChild(row);
-                });
+                // Populate the table
+                const tbody = document.getElementById('achievement-data');
+                if (tbody) {
+                    tbody.innerHTML = ''; // Clear existing content
+                    subjectData.years.forEach((year, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${year}</td>
+                            <td>${subjectData.국어[index].toFixed(1)}%</td>
+                            <td>${subjectData.수학[index].toFixed(1)}%</td>
+                            <td>${subjectData.영어[index].toFixed(1)}%</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                }
             }
         }
     }
