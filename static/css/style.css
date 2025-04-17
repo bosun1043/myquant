@@ -310,20 +310,35 @@
 }
 
 .timeline {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.timeline::after {
-    content: '';
-    position: absolute;
-    width: 2px;
-    background-color: #e9ecef;
-    top: 0;
-    bottom: 0;
-    left: 50%;
-    margin-left: -1px;
+.timeline h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.timeline table {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.timeline th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.timeline td, .timeline th {
+    padding: 12px;
+    text-align: left;
+}
+
+.timeline tr:hover {
+    background-color: #f5f5f5;
 }
 
 .timeline-item {
@@ -382,4 +397,40 @@
 .timeline-content p {
     margin-bottom: 0;
     color: #6c757d;
+}
+
+.achievement-section {
+    margin-top: 30px;
+}
+
+.achievement-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+}
+
+.achievement-card h5 {
+    color: #333;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.achievement-card .table {
+    margin-bottom: 0;
+}
+
+.achievement-card .table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.achievement-card .table td {
+    vertical-align: middle;
+}
+
+.achievement-trend {
+    height: 300px;
+    margin-top: 20px;
 }

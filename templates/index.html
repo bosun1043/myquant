@@ -41,21 +41,6 @@
     </nav>
 
     <div class="container">
-        <!-- Analysis Request Form -->
-        <div class="analysis-form">
-            <h2>데이터 분석 요청</h2>
-            <form id="analysisForm">
-                <textarea name="summary_request" placeholder="분석하고 싶은 내용을 입력하세요..." required></textarea>
-                <button type="submit">분석 시작</button>
-            </form>
-        </div>
-
-        <!-- Analysis Results -->
-        <div class="analysis-results" id="analysisResults" style="display: none;">
-            <h2>분석 결과</h2>
-            <div id="analysisContent"></div>
-        </div>
-
         <!-- 검색 섹션 -->
         <div class="search-section mb-4">
             <div class="row">
@@ -216,7 +201,15 @@
             <div class="tab-pane fade" id="achievement" role="tabpanel" aria-labelledby="achievement-tab">
                 <h2>학업 성취도 현황</h2>
                 
-                <div class="row">
+                <!-- Button Group for Achievement Analysis -->
+                <div class="btn-group mb-4" role="group">
+                    <button type="button" class="btn btn-primary active" data-visualization="timeline">성취도 추이</button>
+                    <button type="button" class="btn btn-outline-primary" data-visualization="infra">인프라 구성</button>
+                    <button type="button" class="btn btn-outline-primary" data-visualization="usage">자원 활용도</button>
+                </div>
+
+                <!-- Timeline Visualization -->
+                <div class="row visualization-section" id="timeline-visualization" style="display: block;">
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-body">
@@ -228,14 +221,56 @@
                         </div>
                     </div>
                 </div>
-                
-                <div class="row mt-4">
+
+                <!-- Infrastructure Visualization -->
+                <div class="row visualization-section" id="infra-visualization" style="display: none;">
                     <div class="col-md-12">
                         <div class="card">
-                            <!-- <div class="card-body">
-                                <h5 class="card-title">지역별 학업 성취도 비교</h5>
-                                <img src="/static/data/achievement/region_comparison.png" alt="지역별 학업 성취도 비교" class="img-fluid">
-                            </div> -->
+                            <div class="card-body">
+                                <h5 class="card-title">디지털 인프라 구성</h5>
+                                <div id="digitalInfraChart"></div>
+                                <div class="data-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>구분</th>
+                                                <th>컴퓨터</th>
+                                                <th>인터넷</th>
+                                                <th>스마트교실</th>
+                                                <th>디지털교과서</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="infra-data">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage Visualization -->
+                <div class="row visualization-section" id="usage-visualization" style="display: none;">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">디지털 자원 활용도</h5>
+                                <div id="digitalUsageChart"></div>
+                                <div class="data-table">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>구분</th>
+                                                <th>수업활용</th>
+                                                <th>학생활용</th>
+                                                <th>교사활용</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="usage-data">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -250,38 +285,20 @@
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary active" data-correlation="visualization">상관관계 시각화</button>
-                                <button type="button" class="btn btn-primary" data-correlation="summary">상관관계 요약</button>
+                                <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계 분석</button>
+                                <button type="button" class="btn btn-outline-primary" data-visualization="regression">회귀 분석</button>
                             </div>
                         </div>
                     </div>
-
+                    
                     <!-- Correlation Visualization -->
-                    <div class="row correlation-section" id="visualization-section">
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">디지털 자원과 학교 운영률의 상관관계</h5>
-                                    <div class="text-center">
-                                        <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
-                                             alt="상관관계 분석" class="img-fluid">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Correlation Summary -->
-                    <div class="row correlation-section" id="summary-section" style="display: none;">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">상관관계 분석 요약</h5>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-hover" id="correlation-summary">
-                                            <!-- Data will be populated by JavaScript -->
-                                        </table>
-                                    </div>
+                                    <h5 class="card-title">디지털 자원과 학업 성취도 상관관계</h5>
+                                    <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
+                                         alt="디지털 자원과 학업 성취도 상관관계" class="img-fluid">
                                 </div>
                             </div>
                         </div>
@@ -291,43 +308,51 @@
 
             <!-- 정책 효과 섹션 -->
             <div class="tab-pane fade" id="policy" role="tabpanel" aria-labelledby="policy-tab">
-                <h2>정책 효과 분석</h2>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">정책 시행 전후 비교</h5>
-                                <div id="policyEffectChart"></div>
+                <div class="container mt-4">
+                    <h2 class="text-center mb-4">정책 효과 분석</h2>
+                    
+                    <!-- Button Group for Policy Analysis -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-primary active" data-visualization="policy">정책 효과</button>
+                                <button type="button" class="btn btn-outline-primary" data-visualization="impact">영향 분석</button>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">지역별 정책 효과</h5>
-                                <div id="policyRegionChart"></div>
+                    
+                    <!-- Policy Visualization -->
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">정책 효과 분석</h5>
+                                    <img src="{{ url_for('static', filename='data/policy/policy_impact.png') }}" 
+                                         alt="정책 효과 분석" class="img-fluid">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- AI Chat Section -->
+            <!-- AI 채팅 섹션 -->
             <div class="tab-pane fade" id="ai-chat" role="tabpanel" aria-labelledby="ai-chat-tab">
                 <div class="container mt-4">
-                    <h2 class="text-center mb-4">AI 분석 도우미</h2>
+                    <h2 class="text-center mb-4">AI 채팅</h2>
                     
-                    <div class="row justify-content-center">
-                        <div class="col-md-8">
+                    <!-- Chat Interface -->
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <div class="chat-messages" id="chat-messages">
-                                        <!-- Messages will be added here -->
-                                    </div>
-                                    <div class="chat-input mt-3">
-                                        <div class="input-group">
-                                            <input type="text" id="chat-input" class="form-control" placeholder="질문을 입력하세요...">
-                                            <button class="btn btn-primary" id="send-message">전송</button>
+                                    <div class="chat-container">
+                                        <div class="chat-messages" id="chat-messages">
+                                            <!-- Chat messages will be displayed here -->
+                                        </div>
+                                        <div class="chat-input">
+                                            <input type="text" id="chat-input" class="form-control" placeholder="메시지를 입력하세요...">
+                                            <button class="btn btn-primary" id="send-button">전송</button>
                                         </div>
                                     </div>
                                 </div>
@@ -336,54 +361,8 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Analysis Button and Container -->
-            <div class="text-center mb-4">
-                <button id="analyze-button" class="btn btn-primary">
-                    데이터 분석하기
-                </button>
-            </div>
-            <div id="analysis-container" class="card p-4 mb-4" style="display: none;">
-                <!-- Analysis results will be displayed here -->
-            </div>
-
-            <!-- Visualization Section -->
-            <div class="visualization-section mb-4">
-                <h2>시각화</h2>
-            </div>
         </div>
     </div>
-
-    <style>
-        .visualization-section {
-            margin-bottom: 2rem;
-        }
-        .btn-group {
-            margin-bottom: 1rem;
-        }
-        .table-responsive {
-            margin-bottom: 1rem;
-        }
-        .card {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: none;
-            border-radius: 8px;
-        }
-        .card-body {
-            padding: 1.5rem;
-        }
-        .card-title {
-            color: #2c3e50;
-            margin-bottom: 1.5rem;
-        }
-        .table {
-            margin-bottom: 0;
-        }
-        .table th {
-            background-color: #f8f9fa;
-            border-top: none;
-        }
-    </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>

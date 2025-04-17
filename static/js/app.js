@@ -112,6 +112,98 @@ document.addEventListener('DOMContentLoaded', function() {
         return tableHTML;
     }
 
+    // Load initial data for overview section
+    document.querySelectorAll('.visualization-section').forEach(section => {
+        const visualizationType = section.getAttribute('data-visualization');
+        if (visualizationType) {
+            loadData(visualizationType);
+        }
+    });
+
+    // Navigation functionality
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const section = this.getAttribute('data-section');
+            if (section) {
+                // Hide all sections
+                document.querySelectorAll('.dashboard-section').forEach(s => {
+                    s.style.display = 'none';
+                });
+                // Show selected section
+                const targetSection = document.getElementById(section);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                }
+                // Update active state
+                document.querySelectorAll('.nav-link').forEach(l => {
+                    l.classList.remove('active');
+                });
+                this.classList.add('active');
+            }
+        });
+    });
+
+    // Initialize filters
+    const regionFilter = document.getElementById('regionFilter');
+    const yearFilter = document.getElementById('yearFilter');
+    const schoolSearch = document.getElementById('schoolSearch');
+
+    if (regionFilter) {
+        regionFilter.addEventListener('change', updateData);
+    }
+    if (yearFilter) {
+        yearFilter.addEventListener('change', updateData);
+    }
+    if (schoolSearch) {
+        schoolSearch.addEventListener('keyup', function(e) {
+            if (e.key === 'Enter') {
+                updateData();
+            }
+        });
+    }
+
+    // Function to update data based on filters
+    function updateData() {
+        const region = regionFilter ? regionFilter.value : '';
+        const year = yearFilter ? yearFilter.value : '';
+        const search = schoolSearch ? schoolSearch.value : '';
+
+        // Update visualizations with filter values
+        const activeSection = document.querySelector('.dashboard-section[style*="block"]');
+        if (activeSection) {
+            const sectionId = activeSection.id;
+            loadSectionData(sectionId, { region, year, search });
+        }
+    }
+
+    // Function to load section-specific data
+    function loadSectionData(sectionId, filters) {
+        switch(sectionId) {
+            case 'overview':
+                loadOverviewData(filters);
+                break;
+            case 'digital-resources':
+                loadDigitalResourcesData(filters);
+                break;
+            case 'achievement':
+                loadAchievementData(filters);
+                break;
+            case 'correlation':
+                loadCorrelationData(filters);
+                break;
+            case 'policy':
+                loadPolicyData(filters);
+                break;
+        }
+    }
+
+    // Load initial data for visible section
+    const initialSection = document.querySelector('.dashboard-section[style*="block"]');
+    if (initialSection) {
+        loadSectionData(initialSection.id, {});
+    }
+
     // Function to update visualizations based on selected school type
     function updateVisualizations(selectedSchool) {
         // Update images
@@ -130,12 +222,6 @@ document.addEventListener('DOMContentLoaded', function() {
             loadData(visualizationType);
         });
     }
-
-    // Load initial data
-    document.querySelectorAll('.visualization-section').forEach(section => {
-        const visualizationType = section.getAttribute('data-visualization');
-        loadData(visualizationType);
-    });
 
     // Handle correlation button clicks
     const correlationButtons = document.querySelectorAll('[data-correlation]');
@@ -249,11 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const row = document.createElement('tr');
                     cells.forEach(cell => {
                         const td = document.createElement('td');
-                        if (!isNaN(cell) && cell.includes('.')) {
-                            td.textContent = parseFloat(cell).toFixed(3);
-                        } else {
-                            td.textContent = cell;
-                        }
+                        td.textContent = cell;
                         row.appendChild(td);
                     });
                     tbody.appendChild(row);
@@ -289,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chat functionality
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-message');
+    const sendButton = document.getElementById('send-button');
 
     function addMessage(message, isUser = false) {
         const messageDiv = document.createElement('div');
@@ -352,6 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingDiv.remove();
 
             if (data.status === 'success') {
+                // Just display the response without any analysis text
                 addMessage(data.response);
             } else {
                 addMessage('죄송합니다. 오류가 발생했습니다. 다시 시도해주세요.');
@@ -364,12 +447,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Event listeners
-    sendButton.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    });
+    if (sendButton) {
+        sendButton.addEventListener('click', sendMessage);
+    }
+    if (chatInput) {
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    }
 
     // School level filter functionality
     const filterButtons = document.querySelectorAll('.filter-btn');
@@ -520,68 +607,262 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to request analysis from Claude API
-    async function requestAnalysis(data, summaryRequest) {
-        try {
-            const response = await fetch('/analyze', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    data: data,
-                    summary_request: summaryRequest
-                })
+    class EducationDashboard {
+        constructor() {
+            this.initializeEventListeners();
+            this.loadData();
+        }
+
+        initializeEventListeners() {
+            // Tab change event listeners
+            document.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = tab.getAttribute('href').substring(1);
+                    this.showSection(targetId);
+                });
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            // Button group event listeners
+            document.querySelectorAll('.btn-group .btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const group = button.closest('.btn-group');
+                    group.querySelectorAll('.btn').forEach(btn => {
+                        btn.classList.remove('active', 'btn-primary');
+                        btn.classList.add('btn-outline-primary');
+                    });
+                    button.classList.remove('btn-outline-primary');
+                    button.classList.add('active', 'btn-primary');
+                    
+                    const visualization = button.getAttribute('data-visualization');
+                    if (button.closest('#achievement')) {
+                        this.updateAchievementVisualization(visualization);
+                    } else {
+                        this.updateVisualization(visualization);
+                    }
+                });
+            });
+        }
 
-            const result = await response.json();
-            
-            if (result.success) {
-                displayAnalysis(result.analysis);
-            } else {
-                console.error('Analysis failed:', result.error);
-                alert('분석 중 오류가 발생했습니다: ' + result.error);
+        async loadData() {
+            try {
+                // 학업 성취도 데이터 로드
+                const middleSchoolResponse = await fetch('/static/data/grade/middle_school_comparison.csv');
+                const highSchoolResponse = await fetch('/static/data/grade/high_school_comparison.csv');
+                
+                const middleSchoolText = await middleSchoolResponse.text();
+                const highSchoolText = await highSchoolResponse.text();
+                
+                this.middleSchoolData = this.parseCSV(middleSchoolText);
+                this.highSchoolData = this.parseCSV(highSchoolText);
+                
+                // 초기 시각화 생성
+                this.createAchievementTimeline();
+                this.createDigitalInfraChart();
+                this.createDigitalUsageChart();
+            } catch (error) {
+                console.error('Error loading data:', error);
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('서버 요청 중 오류가 발생했습니다: ' + error.message);
+        }
+
+        parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const headers = lines[0].split(',');
+            const data = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(',');
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header.trim()] = values[index].trim();
+                });
+                data.push(row);
+            }
+            
+            return data;
+        }
+
+        createAchievementTimeline() {
+            const timelineContainer = document.getElementById('achievement-timeline');
+            if (!timelineContainer) return;
+
+            let html = '<div class="timeline">';
+            html += '<h3>중학교 성취도 변화</h3>';
+            html += '<table class="table table-striped">';
+            html += '<thead><tr><th>연도</th><th>성취도</th></tr></thead><tbody>';
+            
+            this.middleSchoolData.forEach(row => {
+                html += `<tr><td>${row.Year}</td><td>${row.Key_Metrics}</td></tr>`;
+            });
+            
+            html += '</tbody></table>';
+            
+            html += '<h3 class="mt-4">고등학교 성취도 변화</h3>';
+            html += '<table class="table table-striped">';
+            html += '<thead><tr><th>연도</th><th>성취도</th></tr></thead><tbody>';
+            
+            this.highSchoolData.forEach(row => {
+                html += `<tr><td>${row.Year}</td><td>${row.Key_Metrics}</td></tr>`;
+            });
+            
+            html += '</tbody></table>';
+            html += '</div>';
+            
+            timelineContainer.innerHTML = html;
+        }
+
+        showSection(sectionId) {
+            document.querySelectorAll('.tab-pane').forEach(section => {
+                section.classList.remove('show', 'active');
+            });
+            document.getElementById(sectionId).classList.add('show', 'active');
+        }
+
+        updateVisualization(type) {
+            const visualizations = document.querySelectorAll('.visualization-section');
+            visualizations.forEach(vis => {
+                vis.style.display = 'none';
+            });
+            
+            const targetVis = document.getElementById(`${type}-visualization`);
+            if (targetVis) {
+                targetVis.style.display = 'block';
+            }
+        }
+
+        updateAchievementVisualization(type) {
+            // Hide all visualization sections
+            document.querySelectorAll('#achievement .visualization-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show selected visualization section
+            const targetSection = document.getElementById(`${type}-visualization`);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                
+                // Load specific data based on visualization type
+                switch(type) {
+                    case 'timeline':
+                        this.createAchievementTimeline();
+                        break;
+                    case 'infra':
+                        this.createDigitalInfraChart();
+                        break;
+                    case 'usage':
+                        this.createDigitalUsageChart();
+                        break;
+                }
+            }
+        }
+
+        createDigitalInfraChart() {
+            const infraData = {
+                '초등학교': {
+                    '컴퓨터': 15000,
+                    '인터넷': 95,
+                    '스마트교실': 250,
+                    '디지털교과서': 1200
+                },
+                '중학교': {
+                    '컴퓨터': 12000,
+                    '인터넷': 98,
+                    '스마트교실': 180,
+                    '디지털교과서': 800
+                },
+                '고등학교': {
+                    '컴퓨터': 18000,
+                    '인터넷': 99,
+                    '스마트교실': 220,
+                    '디지털교과서': 1500
+                }
+            };
+
+            const tbody = document.getElementById('infra-data');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            Object.entries(infraData).forEach(([school, data]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${school}</td>
+                    <td>${data['컴퓨터'].toLocaleString()}</td>
+                    <td>${data['인터넷']}%</td>
+                    <td>${data['스마트교실']}</td>
+                    <td>${data['디지털교과서']}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Create chart using Plotly
+            const traces = Object.keys(infraData[Object.keys(infraData)[0]]).map(metric => ({
+                x: Object.keys(infraData),
+                y: Object.values(infraData).map(d => d[metric]),
+                type: 'bar',
+                name: metric
+            }));
+
+            const layout = {
+                title: '학교급별 디지털 인프라 현황',
+                yaxis: { title: '보유 수량' },
+                barmode: 'group'
+            };
+
+            Plotly.newPlot('digitalInfraChart', traces, layout);
+        }
+
+        createDigitalUsageChart() {
+            const usageData = {
+                '초등학교': {
+                    '수업활용': 85,
+                    '학생활용': 78,
+                    '교사활용': 92
+                },
+                '중학교': {
+                    '수업활용': 82,
+                    '학생활용': 75,
+                    '교사활용': 88
+                },
+                '고등학교': {
+                    '수업활용': 79,
+                    '학생활용': 72,
+                    '교사활용': 85
+                }
+            };
+
+            const tbody = document.getElementById('usage-data');
+            if (!tbody) return;
+
+            tbody.innerHTML = '';
+            Object.entries(usageData).forEach(([school, data]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${school}</td>
+                    <td>${data['수업활용']}%</td>
+                    <td>${data['학생활용']}%</td>
+                    <td>${data['교사활용']}%</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Create chart using Plotly
+            const traces = ['수업활용', '학생활용', '교사활용'].map(type => ({
+                x: Object.keys(usageData),
+                y: Object.values(usageData).map(d => d[type]),
+                type: 'bar',
+                name: type
+            }));
+
+            const layout = {
+                title: '학교급별 디지털 자원 활용도',
+                yaxis: { title: '활용률 (%)' },
+                barmode: 'group'
+            };
+
+            Plotly.newPlot('digitalUsageChart', traces, layout);
         }
     }
 
-    // Function to display the analysis
-    function displayAnalysis(analysis) {
-        const analysisContainer = document.getElementById('analysis-container');
-        if (!analysisContainer) {
-            console.error('Analysis container not found');
-            return;
-        }
-
-        // Convert markdown headers to HTML
-        const formattedAnalysis = analysis
-            .replace(/## ([^\n]+)/g, '<h2>$1</h2>')
-            .replace(/\n- /g, '<br>• ');
-
-        analysisContainer.innerHTML = formattedAnalysis;
-        analysisContainer.style.display = 'block';
-    }
-
-    // Add event listener for analysis button
-    const analyzeButton = document.getElementById('analyze-button');
-    if (analyzeButton) {
-        analyzeButton.addEventListener('click', function() {
-            // Get the current data displayed
-            const dataContainer = document.getElementById('data-container');
-            const data = dataContainer ? dataContainer.textContent : '';
-            
-            // Get the analysis request from the user
-            const summaryRequest = "학교 유형별 컴퓨터 보유 현황을 분석하고, 교육 현장에서의 디지털 격차에 대해 설명해주세요.";
-            
-            // Request the analysis
-            requestAnalysis(data, summaryRequest);
-        });
-    }
+    // Initialize dashboard
+    const dashboard = new EducationDashboard();
 });
