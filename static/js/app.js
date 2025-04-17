@@ -6,6 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
         triggerEl.addEventListener('click', function(event) {
             event.preventDefault()
             tabTrigger.show()
+
+            // If achievement tab is clicked, initialize the chart
+            if (triggerEl.getAttribute('id') === 'achievement-tab') {
+                setTimeout(() => {
+                    createAchievementChart();
+                }, 100);
+            }
         })
     })
 
@@ -690,7 +697,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const subjectData = {
                 years: ['2010', '2011', '2012', '2013', '2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022', '2023'],
                 국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
-                사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                // 사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
                 과학: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
@@ -942,10 +949,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 국어: [3.2, 1.4, 1.0, 1.3, 2.0, 2.6, 2.0, 2.6, 4.4, 4.1, 6.4, 5.9, 11.3, 9.1],
                 사회: [6.6, 6.6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 수학: [5.9, 4.0, 5.0, 5.2, 5.7, 4.6, 4.9, 7.1, 11.1, 11.8, 13.4, 11.6, 13.2, 13.0],
-                과학: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 영어: [3.9, 5.1, 2.1, 3.4, 3.3, 3.4, 4.0, 3.2, 5.3, 3.3, 7.1, 5.9, 8.8, 6.0]
             };
 
+            // Create traces for the plot
             const traces = [
                 {
                     x: subjectData.years,
@@ -967,14 +974,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     x: subjectData.years,
                     y: subjectData.수학,
                     name: '수학',
-                    type: 'scatter',
-                    mode: 'lines+markers',
-                    line: { width: 2 }
-                },
-                {
-                    x: subjectData.years,
-                    y: subjectData.과학,
-                    name: '과학',
                     type: 'scatter',
                     mode: 'lines+markers',
                     line: { width: 2 }
@@ -1014,7 +1013,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             };
 
-            Plotly.newPlot('achievement-chart', traces, layout);
+            // Create the plot
+            const chartDiv = document.getElementById('achievement-chart');
+            if (chartDiv) {
+                Plotly.newPlot('achievement-chart', traces, layout);
+            }
+
+            // Populate the table
+            const tbody = document.getElementById('achievement-data');
+            if (tbody) {
+                tbody.innerHTML = ''; // Clear existing content
+                subjectData.years.forEach((year, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${year}</td>
+                        <td>${subjectData.국어[index].toFixed(1)}%</td>
+                        <td>${subjectData.사회[index].toFixed(1)}%</td>
+                        <td>${subjectData.수학[index].toFixed(1)}%</td>
+                        <td>${subjectData.영어[index].toFixed(1)}%</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
         }
     }
 
@@ -1030,4 +1050,52 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Achievement visualization handler
+    function initializeAchievementSection() {
+        const achievementButtons = document.querySelectorAll('#achievement .btn-group .btn');
+        achievementButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                achievementButtons.forEach(btn => {
+                    btn.classList.remove('active', 'btn-primary');
+                    btn.classList.add('btn-outline-primary');
+                });
+                
+                // Add active class to clicked button
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('active', 'btn-primary');
+                
+                // Hide all visualization sections
+                document.querySelectorAll('#achievement .visualization-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Show selected visualization section
+                const visualizationType = this.getAttribute('data-visualization');
+                const targetSection = document.getElementById(`${visualizationType}-visualization`);
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                    if (visualizationType === 'timeline') {
+                        createAchievementChart();
+                    }
+                }
+            });
+        });
+    }
+
+    // Create chart when achievement section is shown
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+            const section = this.getAttribute('data-section');
+            if (section === 'achievement') {
+                setTimeout(createAchievementChart, 100);
+            }
+        });
+    });
+
+    // Create chart if achievement section is initially visible
+    if (document.getElementById('achievement').style.display !== 'none') {
+        createAchievementChart();
+    }
 });
