@@ -5,6 +5,10 @@ import numpy as np
 import platform
 import os
 import matplotlib.cm as cm # Import colormap module
+from matplotlib import font_manager, rc
+
+# Set the backend to 'Agg' to avoid GUI issues
+plt.switch_backend('Agg')
 
 # Set font for Korean text
 if platform.system() == 'Darwin':  # macOS
@@ -14,17 +18,33 @@ else:  # Windows
 plt.rcParams['axes.unicode_minus'] = False
 
 def create_overview_visualizations():
-    # Read the original data (before filtering)
-    df = pd.read_csv('../data/total_region_original.csv')  # Use the original data file
-    print("Original data shape:", df.shape)
-    print("Columns:", df.columns)
+    # 디렉토리 생성
+    os.makedirs('static/data/overview', exist_ok=True)
     
-    # Create visualizations with all data
-    create_visualizations(df, '')
+    # 데이터 파일 경로 수정
+    data_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'total_region_original.csv')
+    df = pd.read_csv(data_path)  # Use the original data file
+    
+    # 학교 유형별 데이터 필터링
+    school_types = ['초등학교', '중학교', '일반고', '특성화고', '자율고', '특수목적고', '특수학교']
+    df_filtered = df[df['구분'].isin(school_types)]
+    
+    # 시각화 생성
+    create_visualizations(df_filtered)
+    
+    # 데이터 샘플 출력
+    print("\n=== 학교 유형별 데이터 샘플 ===")
+    print(df_filtered[['구분', '학교 수', '전체', '학생용', '교사용', '직원용', '기타']].head())
+    
+    # 학교 유형별 통계
+    print("\n=== 학교 유형별 통계 ===")
+    print(df_filtered['구분'].value_counts())
+    
+    return df_filtered
 
 def create_visualizations(data, suffix=''):
     # Create directory if it doesn't exist
-    os.makedirs('../static/data/overview', exist_ok=True)
+    os.makedirs('static/data/overview', exist_ok=True)
     
     # School types for filtering
     school_types = ['초등학교', '중학교', '일반고', '특성화고', '자율고', '특수목적고', '특수학교']
@@ -32,7 +52,7 @@ def create_visualizations(data, suffix=''):
     # Computer purpose distribution
     plt.figure(figsize=(10, 6))
     purposes = ['학생용', '교사용', '직원용', '기타']
-    values = [data[purpose].iloc[0] for purpose in purposes]
+    values = [data[purpose].sum() for purpose in purposes]  # Changed to sum() for total values
     
     # Sort purposes and values in ascending order
     sorted_data = sorted(zip(purposes, values), key=lambda x: x[1])
@@ -42,30 +62,12 @@ def create_visualizations(data, suffix=''):
     colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_purposes)))
     
     plt.bar(sorted_purposes, sorted_values, color=colors)
-    plt.title(f'컴퓨터 용도별 분포{suffix}')
+    plt.title('컴퓨터 용도별 분포')
     plt.xlabel('용도')
     plt.ylabel('대수')
     plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(f'../static/data/overview/computer_purpose_distribution{suffix}.png')
-    plt.close()
-    
-    # Regional distribution (excluding school types)
-    plt.figure(figsize=(12, 6))
-    regions = data[~data['구분'].isin(school_types)]
-    
-    if not regions.empty:
-        sorted_data = sorted(zip(regions['구분'], regions['전체']), key=lambda x: x[1], reverse=True)
-        sorted_regions, sorted_computers = zip(*sorted_data)
-        
-        colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_regions)))
-        plt.bar(sorted_regions, sorted_computers, color=colors)
-        plt.title(f'지역별 컴퓨터 보유 현황{suffix}')
-        plt.xlabel('지역')
-        plt.ylabel('컴퓨터 대수')
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-        plt.savefig(f'../static/data/overview/regional_distribution{suffix}.png')
+    plt.savefig('static/data/overview/computer_purpose_distribution.png')
     plt.close()
     
     # School type distribution (only school types)
@@ -78,12 +80,12 @@ def create_visualizations(data, suffix=''):
         
         colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
         plt.bar(sorted_school_types, sorted_school_counts, color=colors)
-        plt.title(f'학교 유형별 분포{suffix}')
+        plt.title('학교 유형별 분포')
         plt.xlabel('학교 유형')
         plt.ylabel('학교 수')
         plt.xticks(rotation=45)
         plt.tight_layout()
-        plt.savefig(f'../static/data/overview/school_type_distribution{suffix}.png')
+        plt.savefig('static/data/overview/school_type_distribution.png')
     plt.close()
     
     # Average computer ownership by school type (only school types)
@@ -95,12 +97,12 @@ def create_visualizations(data, suffix=''):
         
         colors = cm.viridis(np.linspace(0.1, 0.9, len(sorted_school_types)))
         plt.bar(sorted_school_types, sorted_avg_computers, color=colors)
-        plt.title(f'학교 유형별 평균 컴퓨터 보유 현황{suffix}')
+        plt.title('학교 유형별 평균 컴퓨터 보유 현황')
         plt.xlabel('학교 유형')
         plt.ylabel('평균 컴퓨터 대수')
         plt.xticks(rotation=45)
         plt.tight_layout()
-        plt.savefig(f'../static/data/overview/average_computer_ownership{suffix}.png')
+        plt.savefig('static/data/overview/school_type_computers.png')
     plt.close()
 
 def create_regional_distribution(df, save_dir, suffix=''):

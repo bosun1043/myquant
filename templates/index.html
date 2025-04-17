@@ -249,26 +249,49 @@
             <!-- 상관관계 분석 섹션 -->
             <div class="tab-pane fade" id="correlation" role="tabpanel" aria-labelledby="correlation-tab">
                 <div class="container mt-4">
-                    <h2 class="text-center mb-4">디지털 자원과 성취도 상관관계</h2>
+                    <h2 class="text-center mb-4">상관관계 분석</h2>
                     
                     <!-- Button Group for Correlation Analysis -->
                     <div class="row mb-4">
                         <div class="col-md-12">
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계 분석</button>
-                                <button type="button" class="btn btn-outline-primary" data-visualization="regression">회귀 분석</button>
+                                <button type="button" class="btn btn-primary active" data-visualization="correlation">상관관계</button>
+                                <button type="button" class="btn btn-outline-primary" data-visualization="accessibility">디지털 접근성</button>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Correlation Visualization -->
-                    <div class="row">
+                    <div class="row visualization-section" id="correlation-visualization">
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">디지털 자원과 학업 성취도 상관관계</h5>
+                                    <h5 class="card-title">수학 성취도와 디지털 전환의 상관관계</h5>
                                     <img src="{{ url_for('static', filename='data/correlation/correlation_analysis.png') }}" 
-                                         alt="디지털 자원과 학업 성취도 상관관계" class="img-fluid">
+                                         alt="상관관계 분석" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Digital Accessibility Visualization -->
+                    <div class="row visualization-section" id="accessibility-visualization" style="display: none;">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">학교별 디지털 접근성 클러스터링</h5>
+                                    <img src="{{ url_for('static', filename='data/correlation/digital_accessibility_clusters.png') }}" 
+                                         alt="디지털 접근성 클러스터링" class="img-fluid">
+                                    <div class="mt-4">
+                                        <h6>분석 결과 요약</h6>
+                                        <p>디지털 접근성 지수는 다음과 같은 요소들의 가중 합으로 계산됩니다:</p>
+                                        <ul>
+                                            <li>기기 보급률 (40%)</li>
+                                            <li>인터넷 속도 (30%)</li>
+                                            <li>소프트웨어 접근성 (30%)</li>
+                                        </ul>
+                                        <p>K-평균 클러스터링을 통해 학교를 저·중·고 접근성 그룹으로 분류했습니다.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
