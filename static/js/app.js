@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 t: 50,
                 pad: 4
             },
-            width: 800,
+            width: 600,
             height: 500
         };
 
