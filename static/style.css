@@ -1,0 +1,97 @@
+.equation {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.variables {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.variables ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.variables li {
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.variables li:last-child {
+    border-bottom: none;
+}
+
+/* MathJax 스타일 조정 */
+.MathJax {
+    font-size: 1.1em !important;
+}
+
+.hdi-visualization {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.hdi-visualization img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.hdi-table {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.hdi-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.hdi-table th,
+.hdi-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.hdi-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.hdi-table tr:last-child td {
+    border-bottom: none;
+}
+
+.hdi-table td:last-child {
+    font-family: monospace;
+    text-align: right;
+}
+
+.plotly-graph {
+    width: 100%;
+    height: 500px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    margin: 1rem 0;
+}
+
+.interactive-plot {
+    width: 100%;
+    margin: 2rem 0;
+} 

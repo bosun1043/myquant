@@ -1,13 +1,9 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-from scipy import stats
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
 import os
-
-# 한글 폰트 설정
-plt.rcParams['font.family'] = 'AppleGothic'
-plt.rcParams['axes.unicode_minus'] = False
 
 def create_policy_analysis():
     # 디렉토리 생성
@@ -20,6 +16,37 @@ def create_policy_analysis():
     
     # 지역별 HDI (Human Development Index) 생성
     region_hdi = np.random.normal(0.7, 0.1, n_regions).clip(0.5, 0.9)
+    
+    # 지역 이름 설정
+    region_names = ['수도권', '영남권', '호남권', '충청권', '강원권']
+    
+    # 지역별 HDI 데이터프레임 생성
+    hdi_df = pd.DataFrame({
+        '지역': region_names,
+        'HDI': region_hdi
+    })
+    
+    # HDI 시각화 (Plotly)
+    fig_hdi = go.Figure()
+    fig_hdi.add_trace(go.Bar(
+        x=hdi_df['지역'],
+        y=hdi_df['HDI'],
+        marker_color='rgb(55, 83, 109)'
+    ))
+    fig_hdi.update_layout(
+        title='지역별 HDI 분포',
+        xaxis_title='지역',
+        yaxis_title='HDI',
+        yaxis_range=[0.5, 1.0],
+        template='plotly_white',
+        font=dict(family="Arial, sans-serif", size=12),
+        width=800,
+        height=500
+    )
+    
+    # HTML 파일로 저장
+    with open('static/data/policy/regional_hdi.html', 'w', encoding='utf-8') as f:
+        f.write(fig_hdi.to_html(full_html=False, include_plotlyjs=False))
     
     # 학교별 데이터 생성
     data = []
@@ -42,6 +69,7 @@ def create_policy_analysis():
             
             data.append({
                 'region_id': region_id,
+                'region_name': region_names[region_id],
                 'school_id': school_id,
                 'digital_access': digital_access[school_id],
                 'hdi': region_hdi[region_id],
@@ -50,45 +78,67 @@ def create_policy_analysis():
     
     df = pd.DataFrame(data)
     
-    # HLM 모델 시각화
-    plt.figure(figsize=(12, 8))
+    # HLM 모델 시각화 (Plotly)
+    fig_hlm = go.Figure()
     
-    # 지역별로 다른 색상 사용
-    colors = plt.cm.viridis(np.linspace(0, 1, n_regions))
+    # 지역별로 다른 색상의 산점도와 회귀선 추가
+    colors = px.colors.qualitative.Set3[:n_regions]
     
-    # 산점도와 회귀선
-    for region_id in range(n_regions):
+    for region_id, region_name in enumerate(region_names):
         region_data = df[df['region_id'] == region_id]
         
         # 산점도
-        plt.scatter(region_data['digital_access'], region_data['achievement'],
-                   c=[colors[region_id]], alpha=0.6, label=f'지역 {region_id+1}')
+        fig_hlm.add_trace(go.Scatter(
+            x=region_data['digital_access'],
+            y=region_data['achievement'],
+            mode='markers',
+            name=region_name,
+            marker=dict(color=colors[region_id]),
+            legendgroup=region_name,
+            showlegend=True
+        ))
         
         # 회귀선
         z = np.polyfit(region_data['digital_access'], region_data['achievement'], 1)
         p = np.poly1d(z)
         x = np.linspace(region_data['digital_access'].min(), region_data['digital_access'].max(), 100)
-        plt.plot(x, p(x), c=colors[region_id], alpha=0.8)
+        
+        fig_hlm.add_trace(go.Scatter(
+            x=x,
+            y=p(x),
+            mode='lines',
+            name=f'{region_name} 추세선',
+            line=dict(color=colors[region_id], dash='dash'),
+            legendgroup=region_name,
+            showlegend=False
+        ))
     
-    plt.title('디지털 접근성과 학업 성취도의 관계: 지역별 HDI 효과', fontsize=14, pad=20)
-    plt.xlabel('디지털 접근성 지수', fontsize=12)
-    plt.ylabel('학업 성취도', fontsize=12)
+    fig_hlm.update_layout(
+        title='디지털 접근성과 학업 성취도의 관계: 지역별 HDI 효과',
+        xaxis_title='디지털 접근성 지수',
+        yaxis_title='학업 성취도',
+        template='plotly_white',
+        legend_title='지역',
+        hovermode='closest',
+        font=dict(family="Arial, sans-serif", size=12),
+        width=800,
+        height=600
+    )
     
-    # 수식 추가
-    equation = r"$Y_{ij} = \beta_0 + \beta_1 \cdot \mathrm{DigitalAccess}_{ij} + \beta_2 \cdot \mathrm{HDI}_j + " + \
-              r"\beta_3 \cdot (\mathrm{DigitalAccess}_{ij} \times \mathrm{HDI}_j) + u_j + \epsilon_{ij}$"
-    plt.figtext(0.5, 0.02, equation, ha='center', fontsize=12)
+    # LaTeX 수식 추가
+    fig_hlm.add_annotation(
+        text=r'$Y_{ij} = \beta_0 + \beta_1 \cdot \text{DigitalAccess}_{ij} + \beta_2 \cdot \text{HDI}_j + \beta_3 \cdot (\text{DigitalAccess}_{ij} \times \text{HDI}_j) + u_j + \epsilon_{ij}$',
+        xref='paper',
+        yref='paper',
+        x=0.5,
+        y=-0.15,
+        showarrow=False,
+        font=dict(size=12)
+    )
     
-    # 범례 및 여백 조정
-    plt.legend(title='지역 구분', bbox_to_anchor=(1.05, 1), loc='upper left')
-    plt.subplots_adjust(right=0.85, bottom=0.15)
-    
-    # 격자 추가
-    plt.grid(True, alpha=0.3)
-    
-    # 그래프 저장
-    plt.savefig('static/data/policy/policy_impact.png', dpi=300, bbox_inches='tight')
-    plt.close()
+    # HTML 파일로 저장
+    with open('static/data/policy/policy_impact.html', 'w', encoding='utf-8') as f:
+        f.write(fig_hlm.to_html(full_html=False, include_plotlyjs=False))
     
     # 분석 결과
     results = {
@@ -100,7 +150,7 @@ def create_policy_analysis():
             'correlation': df['digital_access'].corr(df['achievement'])
         },
         'regional_effects': {
-            f'region_{i+1}': {
+            region_names[i]: {
                 'hdi': region_hdi[i],
                 'avg_achievement': df[df['region_id'] == i]['achievement'].mean(),
                 'digital_effect': np.polyfit(
@@ -110,7 +160,9 @@ def create_policy_analysis():
                 )[0]
             }
             for i in range(n_regions)
-        }
+        },
+        'regional_hdi': hdi_df.to_dict('records'),
+        'schools': df.to_dict('records')
     }
     
     return results 
