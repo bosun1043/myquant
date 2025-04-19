@@ -458,20 +458,17 @@
                                 <div class="card-body">
                                     <h5 class="card-title">정책 효과 분석</h5>
                                     <p class="card-text">
-                                        정책 효과 분석은 디지털 학습 자원 접근성과 수학 성취도 간의 관계를 다층 구조 모델(Hierarchical Linear Modeling, HLM)을 통해 분석합니다. 이 분석은 다음과 같은 특징을 가집니다:
+                                        HLM은 다층 구조 데이터를 분석하기 위해 설계된 통계 모델로, 일반 선형 회귀(OLS)와 달리 계층 간 변동성을 모델링합니다. 디지털 학습 자원 접근성과 수학 성취도 연구에서는 학생(레벨 1)이 학교(레벨 2), 지역 또는 국가(레벨 3) 내에 중첩된 데이터를 다룹니다. 이러한 데이터는 다음과 같은 이유로 HLM을 필요로 합니다:
                                     </p>
                                     <ul>
                                         <li>
-                                            <strong>다층 구조 모델링:</strong> HLM은 다층 구조 데이터를 분석하기 위해 설계된 통계 모델로, 일반 선형 회귀(OLS)와 달리 계층 간 변동성을 모델링합니다. 디지털 학습 자원 접근성과 수학 성취도 연구에서는 학생(레벨 1)이 학교(레벨 2), 지역 또는 국가(레벨 3) 내에 중첩된 데이터를 다룹니다.
+                                            <strong>계층적 변동성:</strong> 학생의 수학 성취도는 개인 수준(예: 디지털 기기 사용 시간)뿐 아니라 학교 수준(예: 컴퓨터 보급률) 및 국가 수준(예: GDP, HDI) 변수에 의해 영향을 받습니다. HLM은 각 계층의 영향을 분리해 분석합니다.
                                         </li>
                                         <li>
-                                            <strong>계층적 변동성 분석:</strong> 학생의 수학 성취도는 개인 수준(예: 디지털 기기 사용 시간)뿐 아니라 학교 수준(예: 컴퓨터 보급률) 및 국가 수준(예: GDP, HDI) 변수에 의해 영향을 받습니다. HLM은 각 계층의 영향을 분리해 분석합니다.
+                                            <strong>급내 상관계수(ICC):</strong> 동일한 학교나 지역 내 학생들은 독립적이지 않고, 유사한 환경을 공유해 성취도에 상관관계가 존재합니다. OLS는 이를 무시해 표준오차를 과소추정하지만, HLM은 ICC를 계산해 이를 보정합니다.
                                         </li>
                                         <li>
-                                            <strong>급내 상관계수(ICC) 고려:</strong> 동일한 학교나 지역 내 학생들은 독립적이지 않고, 유사한 환경을 공유해 성취도에 상관관계가 존재합니다. OLS는 이를 무시해 표준오차를 과소추정하지만, HLM은 ICC를 계산해 이를 보정합니다.
-                                        </li>
-                                        <li>
-                                            <strong>교차 수준 상호작용 분석:</strong> 예를 들어, 디지털 접근성(학생 수준)의 효과가 국가의 경제 수준(HDI, 국가 수준)에 따라 달라질 수 있습니다. HLM은 이러한 상호작용을 모델링합니다.
+                                            <strong>교차 수준 상호작용:</strong> 예를 들어, 디지털 접근성(학생 수준)의 효과가 국가의 경제 수준(HDI, 국가 수준)에 따라 달라질 수 있습니다. HLM은 이러한 상호작용을 모델링합니다.
                                         </li>
                                     </ul>
                                     <p class="card-text">
@@ -482,6 +479,45 @@
                                         <li>국가의 경제 수준이 디지털 교육의 효과에 미치는 조절 효과</li>
                                         <li>다양한 수준에서의 정책 개입이 필요한 영역의 식별</li>
                                     </ul>
+
+                                    <h5 class="card-title mt-4">2. HLM의 구조</h5>
+                                    <p class="card-text">
+                                        HLM은 계층별로 회귀 방정식을 정의하며, 각 레벨의 결과 변수를 상위 레벨 변수로 설명합니다. 디지털 학습 자원 접근성과 수학 성취도 연구에서의 2레벨 HLM을 예로 들어 설명합니다(학생=레벨 1, 학교=레벨 2).
+                                    </p>
+
+                                    <h6 class="mt-3">레벨 1 (학생 수준)</h6>
+                                    <p>학생 i가 학교 j에 속할 때, 수학 성취도 \(Y_{ij}\)는 다음과 같이 모델링됩니다:</p>
+                                    <div class="equation text-center my-3">
+                                        \[Y_{ij} = \beta_{0j} + \beta_{1j} \cdot \text{DigitalAccess}_{ij} + \beta_{2j} \cdot \text{SES}_{ij} + \epsilon_{ij}\]
+                                    </div>
+                                    <ul class="mb-4">
+                                        <li>\(Y_{ij}\): 학생 i의 수학 성취도 (예: PISA 수학 점수)</li>
+                                        <li>\(\beta_{0j}\): 학교 j의 평균 수학 성취도 (절편)</li>
+                                        <li>\(\beta_{1j}\): 디지털 접근성(예: 기기 사용 빈도)의 학교 j 내 효과</li>
+                                        <li>\(\beta_{2j}\): 사회경제적 지위(SES)의 효과</li>
+                                        <li>\(\epsilon_{ij}\): 학생 수준 잔차, \(\epsilon_{ij} \sim N(0, \sigma^2)\)</li>
+                                    </ul>
+
+                                    <h6 class="mt-3">레벨 2 (학교 수준)</h6>
+                                    <p>레벨 1의 절편(\(\beta_{0j}\))과 기울기(\(\beta_{1j}\))는 학교 수준 변수로 설명됩니다:</p>
+                                    <div class="equation text-center my-3">
+                                        \[\beta_{0j} = \gamma_{00} + \gamma_{01} \cdot \text{SchoolInfra}_j + \gamma_{02} \cdot \text{HDI}_j + u_{0j}\]
+                                        \[\beta_{1j} = \gamma_{10} + \gamma_{11} \cdot \text{SchoolInfra}_j + u_{1j}\]
+                                    </div>
+                                    <ul class="mb-4">
+                                        <li>\(\gamma_{00}\): 전체 학교의 평균 수학 성취도</li>
+                                        <li>\(\gamma_{01}, \gamma_{02}\): 학교 디지털 인프라(예: 컴퓨터 보유량)와 HDI가 평균 성취도에 미치는 효과</li>
+                                        <li>\(\gamma_{10}\): 디지털 접근성의 평균 효과</li>
+                                        <li>\(\gamma_{11}\): 학교 인프라가 디지털 접근성의 효과에 미치는 조절 효과</li>
+                                        <li>\(u_{0j}, u_{1j}\): 학교 수준 잔차, \(u_{0j} \sim N(0, \tau_{00}), u_{1j} \sim N(0, \tau_{11})\)</li>
+                                    </ul>
+
+                                    <h6 class="mt-3">결합 모델</h6>
+                                    <p>레벨 1과 레벨 2를 결합하면 다음과 같은 단일 방정식이 됩니다:</p>
+                                    <div class="equation text-center my-3">
+                                        \[Y_{ij} = \gamma_{00} + \gamma_{01} \cdot \text{SchoolInfra}_j + \gamma_{02} \cdot \text{HDI}_j + \gamma_{10} \cdot \text{DigitalAccess}_{ij} + \gamma_{11} \cdot (\text{SchoolInfra}_j \cdot \text{DigitalAccess}_{ij}) + \gamma_{20} \cdot \text{SES}_{ij} + u_{0j} + u_{1j} \cdot \text{DigitalAccess}_{ij} + \epsilon_{ij}\]
+                                    </div>
+                                    <p class="mt-3">여기서 고정 효과(\(\gamma\))는 전체 데이터에 공통적이며, 랜덤 효과(\(u_{0j}, u_{1j}\))는 학교별 변동성을 반영합니다.</p>
                                 </div>
                             </div>
                         </div>
