@@ -7,6 +7,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link href="/static/css/style.css?v={{ range(1, 9999999) | random }}" rel="stylesheet">
+    <!-- MathJax 설정 -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                processEnvironments: true
+            },
+            options: {
+                skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+            }
+        };
+    </script>
     <!-- Plotly.js -->
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
@@ -440,18 +456,58 @@
                         <div class="col-md-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h5 class="card-title">다층 선형 회귀 모델 (HLM) 분석</h5>
+                                    <h5 class="card-title">정책 효과 분석</h5>
                                     <p class="card-text">
-                                        저접근성 학교에 태블릿, 컴퓨터, 고속 인터넷을 보급한 정책의 효과를 분석했습니다. 
-                                        지역별 HDI(Human Development Index)와 디지털 접근성 지수의 상호작용을 고려한 
-                                        다층 선형 회귀 모델(HLM, Hierarchical Linear Model)을 사용하여 최적 배분을 도출했습니다.
+                                        정책 효과 분석은 디지털 학습 자원 접근성과 수학 성취도 간의 관계를 다층 구조 모델(Hierarchical Linear Modeling, HLM)을 통해 분석합니다. 이 분석은 다음과 같은 특징을 가집니다:
                                     </p>
+                                    <ul>
+                                        <li>
+                                            <strong>다층 구조 모델링:</strong> HLM은 다층 구조 데이터를 분석하기 위해 설계된 통계 모델로, 일반 선형 회귀(OLS)와 달리 계층 간 변동성을 모델링합니다. 디지털 학습 자원 접근성과 수학 성취도 연구에서는 학생(레벨 1)이 학교(레벨 2), 지역 또는 국가(레벨 3) 내에 중첩된 데이터를 다룹니다.
+                                        </li>
+                                        <li>
+                                            <strong>계층적 변동성 분석:</strong> 학생의 수학 성취도는 개인 수준(예: 디지털 기기 사용 시간)뿐 아니라 학교 수준(예: 컴퓨터 보급률) 및 국가 수준(예: GDP, HDI) 변수에 의해 영향을 받습니다. HLM은 각 계층의 영향을 분리해 분석합니다.
+                                        </li>
+                                        <li>
+                                            <strong>급내 상관계수(ICC) 고려:</strong> 동일한 학교나 지역 내 학생들은 독립적이지 않고, 유사한 환경을 공유해 성취도에 상관관계가 존재합니다. OLS는 이를 무시해 표준오차를 과소추정하지만, HLM은 ICC를 계산해 이를 보정합니다.
+                                        </li>
+                                        <li>
+                                            <strong>교차 수준 상호작용 분석:</strong> 예를 들어, 디지털 접근성(학생 수준)의 효과가 국가의 경제 수준(HDI, 국가 수준)에 따라 달라질 수 있습니다. HLM은 이러한 상호작용을 모델링합니다.
+                                        </li>
+                                    </ul>
                                     <p class="card-text">
-                                        <strong>모델 수식:</strong><br>
-                                        \[Y_{ij} = \beta_0 + \beta_1 \cdot \text{DigitalAccess}_{ij} + \beta_2 \cdot \text{HDI}_j + 
-                                        \beta_3 \cdot (\text{DigitalAccess}_{ij} \times \text{HDI}_j) + u_j + \epsilon_{ij}\]
-                                        여기서 \(Y_{ij}\)는 학교 i의 수학 성취도, j는 지역을 나타냅니다.
+                                        분석 결과는 다음과 같은 수식으로 표현됩니다:
                                     </p>
+                                    <div class="text-center mb-3">
+                                        \[
+                                        \begin{aligned}
+                                        \text{Level 1 (학생): } & Y_{ijk} = \beta_{0jk} + \beta_{1jk}X_{ijk} + r_{ijk} \\
+                                        \text{Level 2 (학교): } & \beta_{0jk} = \gamma_{00k} + \gamma_{01k}W_{jk} + u_{0jk} \\
+                                        & \beta_{1jk} = \gamma_{10k} + \gamma_{11k}W_{jk} + u_{1jk} \\
+                                        \text{Level 3 (국가): } & \gamma_{00k} = \pi_{000} + \pi_{001}Z_k + v_{00k} \\
+                                        & \gamma_{01k} = \pi_{010} + \pi_{011}Z_k + v_{01k} \\
+                                        & \gamma_{10k} = \pi_{100} + \pi_{101}Z_k + v_{10k} \\
+                                        & \gamma_{11k} = \pi_{110} + \pi_{111}Z_k + v_{11k}
+                                        \end{aligned}
+                                        \]
+                                    </div>
+                                    <p class="card-text">
+                                        여기서:
+                                    </p>
+                                    <ul>
+                                        <li>\(Y_{ijk}\)는 i번째 학생, j번째 학교, k번째 국가의 수학 성취도</li>
+                                        <li>\(X_{ijk}\)는 학생 수준의 예측 변수(예: 디지털 기기 사용 시간)</li>
+                                        <li>\(W_{jk}\)는 학교 수준의 예측 변수(예: 컴퓨터 보급률)</li>
+                                        <li>\(Z_k\)는 국가 수준의 예측 변수(예: HDI)</li>
+                                        <li>\(r_{ijk}\), \(u_{0jk}\), \(u_{1jk}\), \(v_{00k}\), \(v_{01k}\), \(v_{10k}\), \(v_{11k}\)는 각 수준의 랜덤 효과</li>
+                                    </ul>
+                                    <p class="card-text">
+                                        이 모델은 다음과 같은 정책적 함의를 제공합니다:
+                                    </p>
+                                    <ul>
+                                        <li>개인 수준의 디지털 접근성과 학교 수준의 인프라가 수학 성취도에 미치는 영향의 상대적 중요성</li>
+                                        <li>국가의 경제 수준이 디지털 교육의 효과에 미치는 조절 효과</li>
+                                        <li>다양한 수준에서의 정책 개입이 필요한 영역의 식별</li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>
