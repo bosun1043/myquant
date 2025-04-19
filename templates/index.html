@@ -320,7 +320,7 @@
                                             
                                             <div class="subsection mb-4">
                                                 <h6 class="text-primary">강한 양의 상관관계(r = 0.89)</h6>
-                                                <p>디지털 전환율이 높아질수록 수학 성취도도 비례하여 증가하는 경향이 뚜렷합니다. 이는 디지털 기술과 도구가 수학 학습에 긍정적인 영향을 미칠 가능성을 보여줍니다.</p>
+                                                <p>디지털 전환율이 높아질수록 수학 성취도도 비례하여 증가하는 경향이 뚜렷합니다. 이는 디지털 기술과 도구가 수학 학습에 긍정적인 영향을 미칠 가능성을 보여줍니다. 중요함</p>
                                             </div>
                                             
                                             <div class="subsection mb-4">
@@ -473,32 +473,6 @@
                                         <li>
                                             <strong>교차 수준 상호작용 분석:</strong> 예를 들어, 디지털 접근성(학생 수준)의 효과가 국가의 경제 수준(HDI, 국가 수준)에 따라 달라질 수 있습니다. HLM은 이러한 상호작용을 모델링합니다.
                                         </li>
-                                    </ul>
-                                    <p class="card-text">
-                                        분석 결과는 다음과 같은 수식으로 표현됩니다:
-                                    </p>
-                                    <div class="text-center mb-3">
-                                        \[
-                                        \begin{aligned}
-                                        \text{Level 1 (학생): } & Y_{ijk} = \beta_{0jk} + \beta_{1jk}X_{ijk} + r_{ijk} \\
-                                        \text{Level 2 (학교): } & \beta_{0jk} = \gamma_{00k} + \gamma_{01k}W_{jk} + u_{0jk} \\
-                                        & \beta_{1jk} = \gamma_{10k} + \gamma_{11k}W_{jk} + u_{1jk} \\
-                                        \text{Level 3 (국가): } & \gamma_{00k} = \pi_{000} + \pi_{001}Z_k + v_{00k} \\
-                                        & \gamma_{01k} = \pi_{010} + \pi_{011}Z_k + v_{01k} \\
-                                        & \gamma_{10k} = \pi_{100} + \pi_{101}Z_k + v_{10k} \\
-                                        & \gamma_{11k} = \pi_{110} + \pi_{111}Z_k + v_{11k}
-                                        \end{aligned}
-                                        \]
-                                    </div>
-                                    <p class="card-text">
-                                        여기서:
-                                    </p>
-                                    <ul>
-                                        <li>\(Y_{ijk}\)는 i번째 학생, j번째 학교, k번째 국가의 수학 성취도</li>
-                                        <li>\(X_{ijk}\)는 학생 수준의 예측 변수(예: 디지털 기기 사용 시간)</li>
-                                        <li>\(W_{jk}\)는 학교 수준의 예측 변수(예: 컴퓨터 보급률)</li>
-                                        <li>\(Z_k\)는 국가 수준의 예측 변수(예: HDI)</li>
-                                        <li>\(r_{ijk}\), \(u_{0jk}\), \(u_{1jk}\), \(v_{00k}\), \(v_{01k}\), \(v_{10k}\), \(v_{11k}\)는 각 수준의 랜덤 효과</li>
                                     </ul>
                                     <p class="card-text">
                                         이 모델은 다음과 같은 정책적 함의를 제공합니다:
